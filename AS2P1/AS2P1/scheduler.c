@@ -47,7 +47,7 @@ task_info_t tasks[MAX_TASKS]; //< Information for every task
 void scheduler_init() {
   // TODO: Initialize the state of the scheduler
     current_task = 0;
-    
+    /*
     getcontext(&tasks[0].exit_context);
     // Set up a stack for the exit context
     tasks[0].exit_context.uc_stack.ss_sp = malloc(STACK_SIZE);
@@ -68,6 +68,7 @@ void scheduler_init() {
     
     // And finally, set up the context to execute the task function
     makecontext(&tasks[index].context, fn, 0);
+     */
 }
 
 
