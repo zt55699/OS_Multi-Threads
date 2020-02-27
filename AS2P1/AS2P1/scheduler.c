@@ -51,7 +51,7 @@ int sigcount = 0;
 void signalHandler(int sign){
     sigcount ++;
      printf("signal occurred %d times\n",sigcount);
-    //if(sign ==SIGALRM){
+    if(sign ==SIGALRM){
             int i =1;
             for (i =1; i <num_tasks; i++){
                 if(tasks[i].task_state==sleep_state){
@@ -69,7 +69,7 @@ void signalHandler(int sign){
                     }
                 }
             }
-    //}
+    }
 }
 /**
  * Initialize the scheduler. Programs should call this before calling any other
@@ -88,7 +88,7 @@ void scheduler_init() {
     tasks[0].context.uc_stack.ss_size = STACK_SIZE;
    
 
-   
+   /*
     struct itimerval it;
     struct sigaction act, oact;
     act.sa_handler = signalHandler;
@@ -102,8 +102,8 @@ void scheduler_init() {
     it.it_value.tv_sec = 0;
     it.it_value.tv_usec = 1000;
     setitimer(ITIMER_REAL, &it, NULL);
+    */
     
-    /*
     signal(SIGALRM, signalHandler);
     struct itimerval new_value, old_value;
     new_value.it_value.tv_sec = 0;
@@ -111,7 +111,7 @@ void scheduler_init() {
     new_value.it_interval.tv_sec = 0;
     new_value.it_interval.tv_usec = 200000;
     setitimer (ITIMER_REAL, &new_value, &old_value);
-     */
+     
      
 }
 
