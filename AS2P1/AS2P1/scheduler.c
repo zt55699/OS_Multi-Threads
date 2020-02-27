@@ -51,7 +51,7 @@ int sigcount = 0;
 void signalHandler(int sign){
     sigcount ++;
      printf("signal occurred %d times\n",sigcount);
-    if(sign ==SIGALRM){
+    //if(sign ==SIGALRM){
             int i =1;
             for (i =1; i <num_tasks; i++){
                 if(tasks[i].task_state==sleep_state){
@@ -69,7 +69,7 @@ void signalHandler(int sign){
                     }
                 }
             }
-    }
+    //}
 }
 /**
  * Initialize the scheduler. Programs should call this before calling any other
