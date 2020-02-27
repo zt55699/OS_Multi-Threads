@@ -271,7 +271,7 @@ int round_robin_next(){
      */
     size_t loop_start = time_ms();
     while (tasks[temp_current_task].task_state!=run_state){
-        if((time_ms()-loop_start)>5000000){
+        if((time_ms()-loop_start)>100000){
             printf("infinite loop to find next \n");
             return 0;
         }
