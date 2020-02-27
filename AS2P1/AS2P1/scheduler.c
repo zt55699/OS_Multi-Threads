@@ -95,13 +95,13 @@ void scheduler_init() {
     sigemptyset(&act.sa_mask);
     act.sa_flags = 0;
 
-    sigaction(SIGPROF, &act, &oact);
+    sigaction(SIGALRM, &act, &oact);
     // Start itimer
     it.it_interval.tv_sec = 0;
     it.it_interval.tv_usec = 50000;
     it.it_value.tv_sec = 0;
     it.it_value.tv_usec = 1000;
-    setitimer(ITIMER_PROF, &it, NULL);
+    setitimer(ITIMER_REAL, &it, NULL);
     
     /*
     signal(SIGALRM, signalHandler);
@@ -251,7 +251,7 @@ void task_sleep(size_t ms) {
         //sleep_ms(ms);
         printf("   task[%d] sleeps at %zu \n", current_task, time_ms());
         current_task = round_robin_next();
-        printf("   %d sleep:swapcontext(&tasks[%d].context, &tasks[%d].context) \n", prev_task, prev_task, current_task);
+        printf("   %d sleep get new:swapcontext(&tasks[%d].context, &tasks[%d].context) \n", prev_task, prev_task, current_task);
         swapcontext(&tasks[prev_task].context, &tasks[current_task].context);
 
         
