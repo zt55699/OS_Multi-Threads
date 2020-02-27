@@ -62,7 +62,7 @@ void signalHandler(int sign){
                         
                         int prev_task = current_task;
                         current_task = i;
-                        printf("   wakeup:swapcontext(&tasks[%d].context, &tasks[%d].context) \n", prev_task, current_task);
+                        //printf("   wakeup:swapcontext(&tasks[%d].context, &tasks[%d].context) \n", prev_task, current_task);
                         swapcontext(&tasks[prev_task].context, &tasks[current_task].context);
        
                          
@@ -95,13 +95,13 @@ void scheduler_init() {
     sigemptyset(&act.sa_mask);
     act.sa_flags = 0;
 
-    sigaction(SIGALRM, &act, &oact);
+    sigaction(SIGPROF, &act, &oact);
     // Start itimer
     it.it_interval.tv_sec = 0;
     it.it_interval.tv_usec = 50000;
     it.it_value.tv_sec = 0;
     it.it_value.tv_usec = 1000;
-    setitimer(ITIMER_REAL, &it, NULL);
+    setitimer(ITIMER_PROF, &it, NULL);
     
     /*
     signal(SIGALRM, signalHandler);
