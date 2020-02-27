@@ -47,9 +47,7 @@ int current_task = 0; //< The handle of the currently-executing task
 int num_tasks = 1;    //< The number of tasks created so far
 task_info_t tasks[MAX_TASKS]; //< Information for every task
 
-int count = 0;
 void signalHandler(int sign){
-    count++;
      //printf("signal occurred %d times\n",count);
     //if(sign ==SIGALRM){
             int i =1;
@@ -271,7 +269,12 @@ int round_robin_next(){
     printf("    task2_state: %d wait: %d\n",tasks[2].task_state, tasks[2].wait_for_task);
     printf("    current_task: %d\n",current_task);
      */
+    size_t loop_start = time_ms();
     while (tasks[temp_current_task].task_state!=run_state){
+        if((time_ms()-loop_start)>5000000){
+            printf("infinite loop to find next \n");
+            return 0;
+        }
         temp_current_task++;
         if(temp_current_task > num_tasks-1){
             temp_current_task = 0;
