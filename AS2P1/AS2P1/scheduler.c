@@ -49,10 +49,8 @@ task_info_t tasks[MAX_TASKS]; //< Information for every task
 
 
 void signalHandler(int sign){
-    switch(sign){
-        case SIGALRM:
-            printf("");
-            int i;
+    if(sign ==SIGALRM){
+            int i =1;
             for (i =1; i <num_tasks; i++){
                 if(tasks[i].task_state==sleep_state){
                     if(tasks[i].wakeup_time<= time_ms()){
@@ -69,7 +67,6 @@ void signalHandler(int sign){
                     }
                 }
             }
-            break;
     }
 }
 /**
