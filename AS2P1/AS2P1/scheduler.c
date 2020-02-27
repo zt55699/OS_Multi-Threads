@@ -242,9 +242,9 @@ void task_sleep(size_t ms) {
         tasks[current_task].wakeup_time = time_ms()+ ms;
         //tasks[0].wait_for_task ++;
         //sleep_ms(ms);
-//        printf("   task[%d] sleeps at %zu \n", current_task, time_ms());
+        printf("   task[%d] sleeps at %zu \n", current_task, time_ms());
         current_task = round_robin_next();
-//        printf("   %d sleep:swapcontext(&tasks[%d].context, &tasks[%d].context) \n", prev_task, prev_task, current_task);
+        printf("   %d sleep:swapcontext(&tasks[%d].context, &tasks[%d].context) \n", prev_task, prev_task, current_task);
         swapcontext(&tasks[prev_task].context, &tasks[current_task].context);
 
         
