@@ -95,13 +95,13 @@ void scheduler_init() {
     sigemptyset(&act.sa_mask);
     act.sa_flags = 0;
 
-    sigaction(SIGALRM, &act, &oact);
+    sigaction(SIGPROF, &act, &oact);
     // Start itimer
     it.it_interval.tv_sec = 0;
     it.it_interval.tv_usec = 50000;
-    it.it_value.tv_sec = 1;
-    it.it_value.tv_usec = 100000;
-    setitimer(ITIMER_REAL, &it, NULL);
+    it.it_value.tv_sec = 0;
+    it.it_value.tv_usec = 1000;
+    setitimer(ITIMER_PROF, &it, NULL);
     
     /*
     signal(SIGALRM, signalHandler);
