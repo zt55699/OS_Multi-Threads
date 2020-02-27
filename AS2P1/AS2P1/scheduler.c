@@ -131,8 +131,9 @@ void task_exit() {
     
     printf("    tasks[%d] exit\n", current_task);
     print_wait_arr();
-    
-    swapcontext(&tasks[current_task].context,&tasks[round_robin_next()].context);
+    int prev_task = current_task;
+    current_task = round_robin_next();
+    swapcontext(&tasks[prev_task].context,&tasks[current_task].context);
 }
 
 // check main's waiting condition
