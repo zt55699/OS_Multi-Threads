@@ -84,7 +84,7 @@ void scheduler_init() {
     // Allocate a stack for the new task and add it to the context
     tasks[0].context.uc_stack.ss_sp = malloc(STACK_SIZE);
     tasks[0].context.uc_stack.ss_size = STACK_SIZE;
-    
+   /*
     signal(SIGALRM, signalHandler);
     struct itimerval new_value, old_value;
     new_value.it_value.tv_sec = 0;
@@ -92,7 +92,7 @@ void scheduler_init() {
     new_value.it_interval.tv_sec = 0;
     new_value.it_interval.tv_usec = 200000;
     setitimer (ITIMER_REAL, &new_value, &old_value);
-     
+     */
 }
 
 
