@@ -47,9 +47,11 @@ int current_task = 0; //< The handle of the currently-executing task
 int num_tasks = 1;    //< The number of tasks created so far
 task_info_t tasks[MAX_TASKS]; //< Information for every task
 
-
+int count = 0;
 void signalHandler(int sign){
-    if(sign ==SIGALRM){
+    count++;
+     printf("signal occurred %d times\n",count);
+    //if(sign ==SIGALRM){
             int i =1;
             for (i =1; i <num_tasks; i++){
                 if(tasks[i].task_state==sleep_state){
@@ -67,7 +69,7 @@ void signalHandler(int sign){
                     }
                 }
             }
-    }
+    //}
 }
 /**
  * Initialize the scheduler. Programs should call this before calling any other
@@ -84,7 +86,24 @@ void scheduler_init() {
     // Allocate a stack for the new task and add it to the context
     tasks[0].context.uc_stack.ss_sp = malloc(STACK_SIZE);
     tasks[0].context.uc_stack.ss_size = STACK_SIZE;
-   /*
+   
+
+   
+    struct itimerval it;
+    struct sigaction act, oact;
+    act.sa_handler = signalHandler;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = 0;
+
+    sigaction(SIGPROF, &act, &oact);
+    // Start itimer
+    it.it_interval.tv_sec = 4;
+    it.it_interval.tv_usec = 50000;
+    it.it_value.tv_sec = 1;
+    it.it_value.tv_usec = 100000;
+    setitimer(ITIMER_PROF, &it, NULL);
+    
+    /*
     signal(SIGALRM, signalHandler);
     struct itimerval new_value, old_value;
     new_value.it_value.tv_sec = 0;
@@ -93,6 +112,7 @@ void scheduler_init() {
     new_value.it_interval.tv_usec = 200000;
     setitimer (ITIMER_REAL, &new_value, &old_value);
      */
+     
 }
 
 
