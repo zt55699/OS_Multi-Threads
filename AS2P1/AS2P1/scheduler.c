@@ -95,13 +95,13 @@ void scheduler_init() {
     sigemptyset(&act.sa_mask);
     act.sa_flags = 0;
 
-    sigaction(SIGPROF, &act, &oact);
+    sigaction(SIGALRM, &act, &oact);
     // Start itimer
     it.it_interval.tv_sec = 0;
     it.it_interval.tv_usec = 50000;
     it.it_value.tv_sec = 1;
     it.it_value.tv_usec = 100000;
-    setitimer(ITIMER_PROF, &it, NULL);
+    setitimer(ITIMER_REAL, &it, NULL);
     
     /*
     signal(SIGALRM, signalHandler);
@@ -234,6 +234,13 @@ void task_sleep(size_t ms) {
   // TODO: Block this task until the requested time has elapsed.
   // Hint: Record the time the task should wake up instead of the time left for it to sleep. The bookkeeping is easier this way.
     if(ms>0){
+        
+        /*
+        tasks[current_task].task_state=sleep_state;
+        time_ms(ms);
+        tasks[current_task].task_state=run_state;
+        */
+        
         //swapcontext(&tasks[current_task].context, &tasks[current_task+1].context);
         //current_task +=1;
         int prev_task = current_task;
