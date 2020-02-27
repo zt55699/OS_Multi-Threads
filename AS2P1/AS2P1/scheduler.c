@@ -276,7 +276,7 @@ int round_robin_next(){
             temp_current_task = 0;
         }
     }
-//    printf("    next run: %d \n", temp_current_task);
+    printf("    next run: %d \n", temp_current_task);
     current_task = temp_current_task;
     return current_task;
 }
