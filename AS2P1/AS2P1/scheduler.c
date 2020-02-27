@@ -89,19 +89,7 @@ void scheduler_init() {
    
 
    
-    struct itimerval it;
-    struct sigaction act, oact;
-    act.sa_handler = signalHandler;
-    sigemptyset(&act.sa_mask);
-    act.sa_flags = 0;
-
-    sigaction(SIGALRM, &act, &oact);
-    // Start itimer
-    it.it_interval.tv_sec = 0;
-    it.it_interval.tv_usec = 50000;
-    it.it_value.tv_sec = 0;
-    it.it_value.tv_usec = 1000;
-    setitimer(ITIMER_REAL, &it, NULL);
+    
     
     /*
     signal(SIGALRM, signalHandler);
@@ -246,6 +234,22 @@ void task_sleep(size_t ms) {
         int prev_task = current_task;
         tasks[current_task].task_state=sleep_state;
         
+        
+        struct itimerval it;
+        struct sigaction act, oact;
+        act.sa_handler = signalHandler;
+        sigemptyset(&act.sa_mask);
+        act.sa_flags = 0;
+
+        sigaction(SIGALRM, &act, &oact);
+        // Start itimer
+        it.it_interval.tv_sec = 0;
+        it.it_interval.tv_usec = 50000;
+        it.it_value.tv_sec = 0;
+        it.it_value.tv_usec = 1000;
+        setitimer(ITIMER_REAL, &it, NULL);
+        
+        
         tasks[current_task].wakeup_time = time_ms()+ ms;
         //tasks[0].wait_for_task ++;
         //sleep_ms(ms);
@@ -267,6 +271,7 @@ void task_sleep(size_t ms) {
 * return the id of task to run
 */
 int round_robin_next(){
+    
     int temp_current_task = current_task;
     temp_current_task++;
     if(temp_current_task > num_tasks-1)
