@@ -48,6 +48,12 @@ void task_sleep(size_t ms);
  *
  * \returns The read character code
  */
+int round_robin_next();
+
+void print_wait_arr();
+
+void waiting_check();
+
 int task_readchar();
 
 #endif

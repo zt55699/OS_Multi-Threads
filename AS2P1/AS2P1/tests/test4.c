@@ -24,6 +24,7 @@ void task2_fn() {
 
 int main() {
   // Initialize the ncurses window
+  			printf("mainwin\n");
   WINDOW* mainwin = initscr();
   if(mainwin == NULL) {
     fprintf(stderr, "Error initializing ncurses.\n");

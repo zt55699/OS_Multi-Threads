@@ -23,7 +23,7 @@ int main() {
   task_create(&task2, task2_fn);
   
   task_wait(task1);
-  printf("I am main.");
+  printf("I am main.\n");
   task_wait(task2);
   
   printf("All done!\n");
