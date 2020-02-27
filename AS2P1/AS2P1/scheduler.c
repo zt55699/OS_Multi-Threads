@@ -47,8 +47,10 @@ int current_task = 0; //< The handle of the currently-executing task
 int num_tasks = 1;    //< The number of tasks created so far
 task_info_t tasks[MAX_TASKS]; //< Information for every task
 
+int sigcount = 0;
 void signalHandler(int sign){
-     //printf("signal occurred %d times\n",count);
+    sigcount ++;
+     printf("signal occurred %d times\n",sigcount);
     //if(sign ==SIGALRM){
             int i =1;
             for (i =1; i <num_tasks; i++){
