@@ -62,7 +62,7 @@ void signalHandler(int sign){
                         
                         int prev_task = current_task;
                         current_task = i;
-//                        printf("   wakeup:swapcontext(&tasks[%d].context, &tasks[%d].context) \n", prev_task, current_task);
+                        printf("   wakeup:swapcontext(&tasks[%d].context, &tasks[%d].context) \n", prev_task, current_task);
                         swapcontext(&tasks[prev_task].context, &tasks[current_task].context);
        
                          
