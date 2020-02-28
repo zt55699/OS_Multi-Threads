@@ -47,30 +47,6 @@ int current_task = 0; //< The handle of the currently-executing task
 int num_tasks = 1;    //< The number of tasks created so far
 task_info_t tasks[MAX_TASKS]; //< Information for every task
 
-int sigcount = 0;
-void signalHandler(int sign){
-    sigcount ++;
-     printf("signal occurred %d times\n",sigcount);
-    //if(sign ==SIGALRM){
-            int i =1;
-            for (i =1; i <num_tasks; i++){
-                if(tasks[i].task_state==sleep_state){
-                    if(tasks[i].wakeup_time<= time_ms()){
-                        tasks[i].task_state= run_state;
-                        //printf("   Wakeup SIGALRM signal! task[%d] wake state: %d\n", i,tasks[i].task_state );
-//                        printf("   task[%d] wakeup at %zu \n", i, time_ms());
-                        
-                        int prev_task = current_task;
-                        current_task = i;
-                        //printf("   wakeup:swapcontext(&tasks[%d].context, &tasks[%d].context) \n", prev_task, current_task);
-                        swapcontext(&tasks[prev_task].context, &tasks[current_task].context);
-       
-                         
-                    }
-                }
-            }
-    //}
-}
 /**
  * Initialize the scheduler. Programs should call this before calling any other
  * functiosn in this file.
@@ -86,24 +62,6 @@ void scheduler_init() {
     // Allocate a stack for the new task and add it to the context
     tasks[0].context.uc_stack.ss_sp = malloc(STACK_SIZE);
     tasks[0].context.uc_stack.ss_size = STACK_SIZE;
-   
-
-   /*
-    struct itimerval it;
-    struct sigaction act, oact;
-    act.sa_handler = signalHandler;
-    sigemptyset(&act.sa_mask);
-    act.sa_flags = 0;
-
-    sigaction(SIGPROF, &act, &oact);
-    // Start itimer
-    it.it_interval.tv_sec = 0;
-    it.it_interval.tv_usec = 50000;
-    it.it_value.tv_sec = 0;
-    it.it_value.tv_usec = 1000;
-    setitimer(ITIMER_PROF, &it, NULL);
-    */
-    
 }
 
 
@@ -202,7 +160,7 @@ void task_wait(task_t handle) {
         tasks[prev_task].wait_for_task[current_task] = 1;
     }
     
-    printf("    tasks[0].wait_for_task: %d \n", current_task);
+    //printf("    tasks[0].wait_for_task: %d \n", current_task);
     print_wait_arr();
     
     //printf("swapcontext(&tasks[%d].context, &tasks[%d].context)\n", prev_task, current_task);
@@ -231,7 +189,7 @@ void task_sleep(size_t ms) {
         
         printf("   task[%d] sleeps at %zu \n", current_task, time_ms());
         current_task = round_robin_next();
-        printf("   %d sleep get new:swapcontext(&tasks[%d].context, &tasks[%d].context) \n", prev_task, prev_task, current_task);
+        //printf("   %d sleep get new:swapcontext(&tasks[%d].context, &tasks[%d].context) \n", prev_task, prev_task, current_task);
         swapcontext(&tasks[prev_task].context, &tasks[current_task].context);
 
         
@@ -274,7 +232,7 @@ int round_robin_next(){
             temp_current_task = 0;
         }
     }
-    printf("    next run: %d \n", temp_current_task);
+//    printf("    next run: %d \n", temp_current_task);
     current_task = temp_current_task;
     return current_task;
 }
