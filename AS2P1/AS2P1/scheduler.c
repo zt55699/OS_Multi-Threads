@@ -88,7 +88,7 @@ void scheduler_init() {
     tasks[0].context.uc_stack.ss_size = STACK_SIZE;
    
 
-   
+   /*
     struct itimerval it;
     struct sigaction act, oact;
     act.sa_handler = signalHandler;
@@ -102,17 +102,8 @@ void scheduler_init() {
     it.it_value.tv_sec = 0;
     it.it_value.tv_usec = 1000;
     setitimer(ITIMER_PROF, &it, NULL);
+    */
     
-    /*
-    signal(SIGALRM, signalHandler);
-    struct itimerval new_value, old_value;
-    new_value.it_value.tv_sec = 0;
-    new_value.it_value.tv_usec = 1;
-    new_value.it_interval.tv_sec = 0;
-    new_value.it_interval.tv_usec = 200000;
-    setitimer (ITIMER_REAL, &new_value, &old_value);
-     */
-     
 }
 
 
@@ -234,21 +225,10 @@ void task_sleep(size_t ms) {
   // TODO: Block this task until the requested time has elapsed.
   // Hint: Record the time the task should wake up instead of the time left for it to sleep. The bookkeeping is easier this way.
     if(ms>0){
-        
-        /*
-        tasks[current_task].task_state=sleep_state;
-        time_ms(ms);
-        tasks[current_task].task_state=run_state;
-        */
-        
-        //swapcontext(&tasks[current_task].context, &tasks[current_task+1].context);
-        //current_task +=1;
         int prev_task = current_task;
         tasks[current_task].task_state=sleep_state;
-        
         tasks[current_task].wakeup_time = time_ms()+ ms;
-        //tasks[0].wait_for_task ++;
-        //sleep_ms(ms);
+        
         printf("   task[%d] sleeps at %zu \n", current_task, time_ms());
         current_task = round_robin_next();
         printf("   %d sleep get new:swapcontext(&tasks[%d].context, &tasks[%d].context) \n", prev_task, prev_task, current_task);
@@ -280,14 +260,16 @@ int round_robin_next(){
      */
     size_t loop_start = time_ms();
     while (tasks[temp_current_task].task_state!=run_state){
-        if((time_ms()-loop_start)>5000){
-            printf("            infinite loop to find next \n");
-        }
-        if((time_ms()-loop_start)>10000){
-            printf("infinite loop to find next \n");
+        temp_current_task++;
+        if((time_ms()-loop_start)>6000){
+            printf("           infinite loop to find next \n");
             return 0;
         }
-        temp_current_task++;
+        size_t current_time =time_ms();
+        if(tasks[temp_current_task].task_state == sleep_state && tasks[temp_current_task].wakeup_time<= current_time){
+            tasks[temp_current_task].task_state = run_state;
+             printf("   task[%d] wakeup at %zu\n",temp_current_task, current_time);
+        }
         if(temp_current_task > num_tasks-1){
             temp_current_task = 0;
         }
