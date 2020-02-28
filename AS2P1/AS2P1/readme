@@ -1,0 +1,41 @@
+/******************************************************************
+ Readme file for BattleWorm!!!
+ CSC360 Assignment2 Part1
+
+ Name:Tong Zhang
+ StuID: V00926513
+ Date: 02/27/2020
+ Reference:
+	   "CSC360 Coursespace Forum":
+	   		I got lots of inspirations there.
+	  
+ Milestones: Test1 PASS;	
+ 			 Test2 PASS;	
+ 			 Test3 PASS;
+ 			 Test4 PASS;
+ 			 BattleWorm runs SUCCESSFULLY;
+ 			 All goals achieved!
+ 			 
+ Functions added:			 
+ 		int round_robin_next()
+ 			/*In Round-robin fashion choose next task to run
+ 			  Choose next task in the arry, if its state is "run" 
+ 			  and not waiting for others then run it. Otherwise 
+ 			  iterate to next task, do the same check to decide run
+ 			  it or not. Also check wakeup condition and get_char 
+ 			  condition in the loop. Return the id of task to run.*/
+ 			  
+ 		void waiting_check()
+ 			/*Once a task exit, update or not main task's state, 
+ 			  then call waiting_check() to check main task's state,
+ 			  if its waiting array is cleared, then set main's state
+ 			  to running. */
+ 		
+ 		void print_wait_arr()
+ 			/*Only used for debugging, which prints out the waiting
+ 			  condition. */
+ 			 
+ Alternative solution: Use signal interrupt to check wakeup or getch
+ 
+ Possible Bug: N/A	    
+*******************************************************************/
