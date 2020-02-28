@@ -21,6 +21,7 @@
 #define exit_state 1
 #define sleep_state 2
 #define wait_state 3
+#define waitCh_state 4
 
 // This struct will hold the all the necessary information for each task
 typedef struct task_info {
@@ -78,8 +79,8 @@ void task_exit() {
     // check main's waiting condition
     waiting_check();
     
-    printf("    tasks[%d] exit\n", current_task);
-    print_wait_arr();
+///    printf("    tasks[%d] exit\n", current_task);
+///    print_wait_arr();
     int prev_task = current_task;
     current_task = round_robin_next();
     swapcontext(&tasks[prev_task].context,&tasks[current_task].context);
@@ -161,7 +162,7 @@ void task_wait(task_t handle) {
     }
     
     //printf("    tasks[0].wait_for_task: %d \n", current_task);
-    print_wait_arr();
+///    print_wait_arr();
     
     //printf("swapcontext(&tasks[%d].context, &tasks[%d].context)\n", prev_task, current_task);
     if(tasks[current_task].task_state== run_state)
@@ -187,7 +188,7 @@ void task_sleep(size_t ms) {
         tasks[current_task].task_state=sleep_state;
         tasks[current_task].wakeup_time = time_ms()+ ms;
         
-        printf("   task[%d] sleeps at %zu \n", current_task, time_ms());
+///        printf("   task[%d] sleeps at %zu \n", current_task, time_ms());
         current_task = round_robin_next();
         //printf("   %d sleep get new:swapcontext(&tasks[%d].context, &tasks[%d].context) \n", prev_task, prev_task, current_task);
         swapcontext(&tasks[prev_task].context, &tasks[current_task].context);
@@ -226,7 +227,7 @@ int round_robin_next(){
         size_t current_time =time_ms();
         if(tasks[temp_current_task].task_state == sleep_state && tasks[temp_current_task].wakeup_time<= current_time){
             tasks[temp_current_task].task_state = run_state;
-             printf("   task[%d] wakeup at %zu\n",temp_current_task, current_time);
+///             printf("   task[%d] wakeup at %zu\n",temp_current_task, current_time);
         }
         if(temp_current_task > num_tasks-1){
             temp_current_task = 0;
@@ -259,7 +260,16 @@ int task_readchar() {
   // To check for input, call getch(). If it returns ERR, no input was available.
   // Otherwise, getch() will returns the character code that was read.
   int ch;
-  if((ch = getch()))
-      return ch;
+    while(1){
+        if((ch = getch()))
+            return ch;
+        else{
+            tasks[current_task].task_state = waitCh_state;
+            int prev_task;
+            prev_task = current_task;
+            current_task = round_robin_next();
+            swapcontext(&tasks[prev_task].context, &tasks[current_task].context);
+        }
+    }
   return ERR;
 }
