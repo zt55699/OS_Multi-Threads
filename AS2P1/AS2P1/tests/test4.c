@@ -24,17 +24,19 @@ void task2_fn() {
 
 int main() {
   // Initialize the ncurses window
-  			printf("mainwin\n");
   WINDOW* mainwin = initscr();
+  
   if(mainwin == NULL) {
     fprintf(stderr, "Error initializing ncurses.\n");
     exit(2);
   }
   
+  
   // Set up input with ncurses
-  noecho();
+  noecho();		
   keypad(mainwin, true);
   nodelay(mainwin, true);
+  
   
   // Begin the test
   scheduler_init();

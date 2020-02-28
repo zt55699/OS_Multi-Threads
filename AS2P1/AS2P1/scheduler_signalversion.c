@@ -21,7 +21,6 @@
 #define exit_state 1
 #define sleep_state 2
 #define wait_state 3
-#define waitCh_state 4
 
 // This struct will hold the all the necessary information for each task
 typedef struct task_info {
@@ -47,7 +46,31 @@ typedef struct task_info {
 int current_task = 0; //< The handle of the currently-executing task
 int num_tasks = 1;    //< The number of tasks created so far
 task_info_t tasks[MAX_TASKS]; //< Information for every task
-int real_ch;
+
+int sigcount = 0;
+void signalHandler(int sign){
+    sigcount ++;
+     printf("signal occurred %d times\n",sigcount);
+    //if(sign ==SIGALRM){
+            int i =1;
+            for (i =1; i <num_tasks; i++){
+                if(tasks[i].task_state==sleep_state){
+                    if(tasks[i].wakeup_time<= time_ms()){
+                        tasks[i].task_state= run_state;
+                        //printf("   Wakeup SIGALRM signal! task[%d] wake state: %d\n", i,tasks[i].task_state );
+//                        printf("   task[%d] wakeup at %zu \n", i, time_ms());
+                        
+                        int prev_task = current_task;
+                        current_task = i;
+                        //printf("   wakeup:swapcontext(&tasks[%d].context, &tasks[%d].context) \n", prev_task, current_task);
+                        swapcontext(&tasks[prev_task].context, &tasks[current_task].context);
+       
+                         
+                    }
+                }
+            }
+    //}
+}
 /**
  * Initialize the scheduler. Programs should call this before calling any other
  * functiosn in this file.
@@ -63,6 +86,33 @@ void scheduler_init() {
     // Allocate a stack for the new task and add it to the context
     tasks[0].context.uc_stack.ss_sp = malloc(STACK_SIZE);
     tasks[0].context.uc_stack.ss_size = STACK_SIZE;
+   
+
+   
+    struct itimerval it;
+    struct sigaction act, oact;
+    act.sa_handler = signalHandler;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = 0;
+
+    sigaction(SIGPROF, &act, &oact);
+    // Start itimer
+    it.it_interval.tv_sec = 0;
+    it.it_interval.tv_usec = 50000;
+    it.it_value.tv_sec = 0;
+    it.it_value.tv_usec = 1000;
+    setitimer(ITIMER_PROF, &it, NULL);
+    
+    /*
+    signal(SIGALRM, signalHandler);
+    struct itimerval new_value, old_value;
+    new_value.it_value.tv_sec = 0;
+    new_value.it_value.tv_usec = 1;
+    new_value.it_interval.tv_sec = 0;
+    new_value.it_interval.tv_usec = 200000;
+    setitimer (ITIMER_REAL, &new_value, &old_value);
+     */
+     
 }
 
 
@@ -79,8 +129,8 @@ void task_exit() {
     // check main's waiting condition
     waiting_check();
     
-///    printf("    tasks[%d] exit\n", current_task);
-///    print_wait_arr();
+    printf("    tasks[%d] exit\n", current_task);
+    print_wait_arr();
     int prev_task = current_task;
     current_task = round_robin_next();
     swapcontext(&tasks[prev_task].context,&tasks[current_task].context);
@@ -161,8 +211,8 @@ void task_wait(task_t handle) {
         tasks[prev_task].wait_for_task[current_task] = 1;
     }
     
-    //printf("    tasks[0].wait_for_task: %d \n", current_task);
-///    print_wait_arr();
+    printf("    tasks[0].wait_for_task: %d \n", current_task);
+    print_wait_arr();
     
     //printf("swapcontext(&tasks[%d].context, &tasks[%d].context)\n", prev_task, current_task);
     if(tasks[current_task].task_state== run_state)
@@ -184,13 +234,24 @@ void task_sleep(size_t ms) {
   // TODO: Block this task until the requested time has elapsed.
   // Hint: Record the time the task should wake up instead of the time left for it to sleep. The bookkeeping is easier this way.
     if(ms>0){
+        
+        /*
+        tasks[current_task].task_state=sleep_state;
+        time_ms(ms);
+        tasks[current_task].task_state=run_state;
+        */
+        
+        //swapcontext(&tasks[current_task].context, &tasks[current_task+1].context);
+        //current_task +=1;
         int prev_task = current_task;
         tasks[current_task].task_state=sleep_state;
-        tasks[current_task].wakeup_time = time_ms()+ ms;
         
-///        printf("   task[%d] sleeps at %zu \n", current_task, time_ms());
+        tasks[current_task].wakeup_time = time_ms()+ ms;
+        //tasks[0].wait_for_task ++;
+        //sleep_ms(ms);
+        printf("   task[%d] sleeps at %zu \n", current_task, time_ms());
         current_task = round_robin_next();
-        //printf("   %d sleep get new:swapcontext(&tasks[%d].context, &tasks[%d].context) \n", prev_task, prev_task, current_task);
+        printf("   %d sleep get new:swapcontext(&tasks[%d].context, &tasks[%d].context) \n", prev_task, prev_task, current_task);
         swapcontext(&tasks[prev_task].context, &tasks[current_task].context);
 
         
@@ -219,27 +280,19 @@ int round_robin_next(){
      */
     size_t loop_start = time_ms();
     while (tasks[temp_current_task].task_state!=run_state){
-        
-        if((time_ms()-loop_start)>6000){
-            printf("           infinite loop to find next \n");
+        if((time_ms()-loop_start)>5000){
+            printf("            infinite loop to find next \n");
+        }
+        if((time_ms()-loop_start)>10000){
+            printf("infinite loop to find next \n");
             return 0;
-        }
-        size_t current_time =time_ms();
-        if(tasks[temp_current_task].task_state == sleep_state && tasks[temp_current_task].wakeup_time<= current_time){
-            tasks[temp_current_task].task_state = run_state;
-///             printf("   task[%d] wakeup at %zu\n",temp_current_task, current_time);
-        }
-        int ch;
-        if(tasks[temp_current_task].task_state == waitCh_state && (ch =getch()) != ERR ){
-            real_ch = ch;
-            tasks[temp_current_task].task_state = run_state;
         }
         temp_current_task++;
         if(temp_current_task > num_tasks-1){
             temp_current_task = 0;
         }
     }
-//    printf("    next run: %d \n", temp_current_task);
+    printf("    next run: %d \n", temp_current_task);
     current_task = temp_current_task;
     return current_task;
 }
@@ -265,22 +318,8 @@ int task_readchar() {
   // TODO: Block this task until there is input available.
   // To check for input, call getch(). If it returns ERR, no input was available.
   // Otherwise, getch() will returns the character code that was read.
-  
-    int ch;
-    while(1){
-        if((ch =getch()) != ERR){
-            printw("get a ch\n");
-            tasks[current_task].task_state = run_state;
-            return ch;
-        }
-        else{
-            tasks[current_task].task_state = waitCh_state;
-            int prev_task;
-            prev_task = current_task;
-            current_task = round_robin_next();
-            swapcontext(&tasks[prev_task].context, &tasks[current_task].context);
-            return real_ch;
-        }
-    }
+  int ch;
+  if((ch = getch()))
+      return ch;
   return ERR;
 }
