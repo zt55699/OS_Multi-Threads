@@ -152,7 +152,7 @@ void *philosopher (void* param) {
     while (1) {
         if((time_ms()-loop_start)>6000){
             printf("           DEAD LOCK!! \n");
-            return 0;
+            exit(0);
         }
         int temp, sval;
         int all_picked = 0;
@@ -170,6 +170,8 @@ void *philosopher (void* param) {
             }
             continue;
         }
+        
+        
         printf("哲学家%d正在思考问题\n", i);
         sleep(rand()%3+1);
                 
@@ -197,6 +199,8 @@ void *philosopher (void* param) {
         printf("哲学家%d放下了%d号筷子\n", i, right);
          
          */
+        int printcount =0;
+        loop_start = time_ms();
     }
 }
  
