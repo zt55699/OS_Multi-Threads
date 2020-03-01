@@ -114,19 +114,19 @@ void waiter (int philo){
     if(sval_l <1 ||sval_r <1 ){
         if(sval_l <1 &&sval_r <1 ){
             printf("  %d号 does't has chopstics to pick up\n", philo);
-            queue_push(&waitlist,philo);
+            //queue_push(&waitlist,philo);
         }
         else if(sval_l ==1){
             chops_belong[left] = philo;
             printf("  %d号 pick up left\n", philo);
             sem_wait(&chopsticks[left]);
-            queue_push(&waitlist,philo);
+            //queue_push(&waitlist,philo);
         }
         else if(sval_r ==1){
             chops_belong[right] = philo;
             printf("  %d号 pick up right\n", philo);
             sem_wait(&chopsticks[right]);
-            queue_push(&waitlist,philo);
+            //queue_push(&waitlist,philo);
         }
         printf("  左 belong to %d号； 右 belong to %d号\n", chops_belong[left], chops_belong[right]);
         if(chops_belong[left] == philo && chops_belong[right] == philo){
