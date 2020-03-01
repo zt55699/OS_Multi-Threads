@@ -18,7 +18,7 @@
 int philosophers[5] = {0, 1, 2, 3, 4};//5 philosophers
 sem_t chopsticks[5];
 int chops_belong[5] = {-1,-1,-1,-1,-1};
-sem_t mut;
+//sem_t mut;
 pthread_mutex_t mutex;
 
 typedef struct {
@@ -238,7 +238,7 @@ int main (void) {
     
     queue_init(&waitlist);
     pthread_mutex_init(&mutex, NULL);
-    sem_init(&mutex, 0, 1);
+    //sem_init(&mutex, 0, 1);
     
     for (int i=0; i<5; i++) {
         sem_init(&chopsticks[i], 0, 1); // initiallization the semophore
