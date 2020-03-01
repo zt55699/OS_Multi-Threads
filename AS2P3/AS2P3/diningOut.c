@@ -226,7 +226,7 @@ void *philosopher (void* param) {
             first[i]=1;
             //sem_wait(&mut);
         }
-        else{
+        else if(waiting[i]!=1){
             printf("philosopher[%d] is thinking \n", i);
             sleep(rand()%7+2);
             printf("philosopher[%d] is hungry, send request to the waiter \n", i);
