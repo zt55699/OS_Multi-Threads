@@ -85,6 +85,8 @@ void dining(int philo){
     
     sleep(rand()%4+3);
     printf("       %d号 进餐结束放下2支筷子\n", philo);
+    chops_belong[left] = -1;
+    chops_belong[right] = -1;
     sem_post(&chopsticks[left]);
     sem_post(&chopsticks[right]);
 }
@@ -102,18 +104,18 @@ void waiter (int philo){
             printf("  %d号 does't has chopstics to pick up\n", philo);
         }
         else if(sval_l ==1){
-            chops_belong[sval_l] = philo;
+            chops_belong[left] = philo;
             printf("  %d号 pick up left\n", philo);
             sem_wait(&chopsticks[left]);
             //queue_push(&waitlist,philo);
         }
         else{
-            chops_belong[sval_r] = philo;
+            chops_belong[right] = philo;
             printf("  %d号 pick up right\n", philo);
             sem_wait(&chopsticks[right]);
             //queue_push(&waitlist,philo);
         }
-        if(chops_belong[sval_l] == philo && chops_belong[sval_r] == philo){
+        if(chops_belong[left] == philo && chops_belong[right] == philo){
             dining(philo);
         }
         printf("       %d号 不能进食进入等待列表 unlock\n", philo);
