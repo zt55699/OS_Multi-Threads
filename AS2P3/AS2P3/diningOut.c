@@ -74,6 +74,18 @@ int queue_front(const Queue *p_queue, int *p_num) {
     }
 }
 
+size_t time_ms() {
+  struct timeval tv;
+  if(gettimeofday(&tv, NULL) == -1) {
+    perror("gettimeofday");
+    exit(2);
+  }
+  
+  // Convert timeval values to milliseconds
+  return tv.tv_sec*1000 + tv.tv_usec/1000;
+}
+
+
 void dining(int philo){
     int left = philo;//左筷子的编号和哲学家的编号相同
     int right = (philo + 4) % 5;//右筷子的编号为哲学家编号+4%5
