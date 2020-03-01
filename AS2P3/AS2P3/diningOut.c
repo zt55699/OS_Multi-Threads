@@ -142,7 +142,7 @@ void waiter (int philo){
     sem_getvalue(&chopsticks[right], &sval_r);
     if(sval_l <1 ||sval_r <1 ){
         if(sval_l <1 &&sval_r <1 ){
-            printf("philosopher %d doesn't has chopstics to pick up\n", philo);
+            //printf("philosopher %d doesn't has chopstics to pick up\n", philo);
       
         }
         else if(sval_l ==1){
@@ -199,8 +199,7 @@ void *philosopher (void* param) {
         }
         if(all_picked==0){
             if(printcount==0){
-                printf("\n");
-                printf("All chopsticks are being hold, waiting someone done\n");
+                printf("The waiter told philo %d that all chopsticks are being hold, waiting someone done\n", i);
                 printf("\n");
                 printcount =1;
             }
