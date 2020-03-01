@@ -72,7 +72,7 @@ int queue_front(const Queue *p_queue, int *p_num) {
         return 1;
     }
 }
-
+/*
 int waiter (int philo){
     int left = philo;//左筷子的编号和哲学家的编号相同
     int right = (philo + 4) % 5;//右筷子的编号为哲学家编号+4%5
@@ -101,7 +101,7 @@ int waiter (int philo){
     
     return 1;
 }
- 
+ */
 void *philosopher (void* param) {
     int i = *(int *)param;  //turn param to a int pointer, then get the integer it points
     int left = i;//左筷子的编号和哲学家的编号相同
