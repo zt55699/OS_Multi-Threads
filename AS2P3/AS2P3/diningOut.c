@@ -120,7 +120,7 @@ void *philosopher (void* param) {
    /* int left = i;//左筷子的编号和哲学家的编号相同
     int right = (i + 4) % 5;//右筷子的编号为哲学家编号+4%5
     */
-    
+    int printcount =0;
     while (1) {
         int temp, sval;
         int all_picked = 0;
@@ -132,8 +132,10 @@ void *philosopher (void* param) {
             }
         }
         if(all_picked==0){
-            printf("所有筷子都在使用 等待中\n");
-            sleep(1);
+            if(printcount==0){
+                printf("所有筷子都在使用 等待中\n");
+                printcount =1;
+            }
             continue;
         }
         printf("哲学家%d正在思考问题\n", i);
