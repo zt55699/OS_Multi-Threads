@@ -18,7 +18,7 @@
 
 #define SIZE 3653
 #define COMBINATION 6666726
-int R_SIZE = 30;
+int R_SIZE = 365;
 
 typedef struct{
     int x;
@@ -107,12 +107,12 @@ void cal_sum(combination *pair){
     for(i=1;i<R_SIZE+1;i++){
         //if(i!=(pair->p1) && i!=(pair->p2)){
             float absResidual =fabs(points[i].y-(x1+x2*(i)));
-            printf(" p%d 's residual is %f\n", i, absResidual);
+            //printf(" p%d 's residual is %f\n", i, absResidual);
             count_resi++;
             sum+= absResidual;
         //}
     }
-    printf("numof resi= %d\n", count_resi);
+    //printf("numof resi= %d\n", count_resi);
     pair->sum = sum;
     //printf("pair%d-%d sum:%f\n", pair->p1, pair->p2, pair->sum);
 }
@@ -134,7 +134,8 @@ void find_min(){
             min_pair = i;
         }
     }
-    printf("the best L1 line: (%d,%d)and(%d,%d)\n", points[sums[min_pair].p1].x,points[sums[min_pair].p1].y, points[sums[min_pair].p2].x,points[sums[min_pair].p2].y);
+    printf("the best L1 line: (%d,%d)and(%d,%d)  SAR: %f\n", points[sums[min_pair].p1].x,points[sums[min_pair].p1].y, points[sums[min_pair].p2].x,points[sums[min_pair].p2].y,minSAR);
+    
     cal_slopint(sums[min_pair]);
     
 }
@@ -157,8 +158,8 @@ void* fitting(){
 }
 
 
-void read_csv(){
-    char* file = "stremflow_time_series.csv";
+void read_csv(char* file){
+    
     FILE *fp = NULL;
     char *line,*record;
     char buffer[40];
@@ -197,12 +198,14 @@ void cal_all_sum(){
 }
  
 int main (void) {
-    read_csv();
+    //char* file = "stremflow_time_series.csv";
+    char* file = "test1_2002.csv";
+    read_csv(file);
     //print_points();
     build_pairs(R_SIZE+1,2,0,1);
     //build_pairs(3653,2,0,1);
     
-    print_comb();
+    //print_comb();
     printf("total com: %d\n", count_com);
     cal_all_sum();
     find_min();
@@ -226,28 +229,3 @@ int main (void) {
 
 
 
-/*
-void read_csv(){
-    char* file = "stremflow_time_series.csv";
-    FILE *fp = NULL;
-    char *line,*record;
-    char buffer[40];//20450这个数组大小也要根据自己文件的列数进行相应修改。
-
-    if((fp = fopen(file, "r")) != NULL)
-    {
-        fseek(fp, 0, SEEK_SET);  //定位到第二行，每个英文字符大小为1，16425L这个参数根据自己文件的列数进行相应修改。
-
-        while ((line = fgets(buffer, sizeof(buffer), fp))!=NULL)//当没有读取到文件末尾时循环继续
-        {
-            record = strtok(line, ",");
-            while (record != NULL)//读取每一行的数据
-            {
-                printf("%s ", record);//将读取到的每一个数据打印出来
-                record = strtok(NULL, ",");
-            }
-        }
-        fclose(fp);
-        fp = NULL;
-    }
-}
-*/
