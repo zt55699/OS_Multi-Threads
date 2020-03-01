@@ -115,11 +115,11 @@ void waiter (int philo){
 }
  
 void *philosopher (void* param) {
-    int i = *(int *)param;  //turn param to a int pointer, then get the integer it points
-    int left = i;//左筷子的编号和哲学家的编号相同
-    int right = (i + 4) % 5;//右筷子的编号为哲学家编号+4%5
     
-            int sval_l=99, sval_r=99;
+    int i = *(int *)param;  //turn param to a int pointer, then get the integer it points
+   /* int left = i;//左筷子的编号和哲学家的编号相同
+    int right = (i + 4) % 5;//右筷子的编号为哲学家编号+4%5
+    */
     while (1) {
         printf("哲学家%d正在思考问题\n", i);
         sleep(rand()%3+1);
