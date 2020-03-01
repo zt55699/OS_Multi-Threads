@@ -19,6 +19,7 @@ int philosophers[5] = {0, 1, 2, 3, 4};//5 philosophers
 sem_t chopsticks[5];
 int chops_belong[5] = {-1,-1,-1,-1,-1};
 int waiting[5] ={0};
+int first[5] ={0};
 //sem_t mut;
 pthread_mutex_t mutex;
 
@@ -122,6 +123,7 @@ size_t time_ms() {
 void dining(int philo){
     queue_remove(&waitlist, philo);
     waiting[philo]=0;
+    first[philo]=0;
     int left = philo;
     int right = (philo + 4) % 5;//id of right chopstick=(id_philosopher+4)%5.
     sem_wait(&chopsticks[left]);
@@ -219,8 +221,9 @@ void *philosopher (void* param) {
             }
             continue;
         }
-        if(waiting[i]==1){
+        if(waiting[i]==1 && first[i]==0){
             printf("philosopher[%d] is waiting \n", i);
+            first[i]=1;
             //sem_wait(&mut);
         }
         else{
