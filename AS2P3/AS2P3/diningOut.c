@@ -133,6 +133,7 @@ void *philosopher (void* param) {
         }
         if(all_picked==0){
             printf("所有筷子都在使用 等待中\n");
+            sleep(1);
             continue;
         }
         printf("哲学家%d正在思考问题\n", i);
