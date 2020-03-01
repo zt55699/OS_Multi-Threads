@@ -18,6 +18,7 @@
 int philosophers[5] = {0, 1, 2, 3, 4};//5 philosophers
 sem_t chopsticks[5];
 int chops_belong[5] = {-1,-1,-1,-1,-1};
+sem_t mut;
 pthread_mutex_t mutex;
 
 typedef struct {
@@ -217,7 +218,7 @@ void *philosopher (void* param) {
         }
         if(queue_finding(&waitlist, i)==1){
             printf("philosopher[%d] is waiting \n", i);
-            sleep(rand()%4+2);
+            //sem_wait(&mut);
         }
         else{
             printf("philosopher[%d] is thinking \n", i);
@@ -237,6 +238,7 @@ int main (void) {
     
     queue_init(&waitlist);
     pthread_mutex_init(&mutex, NULL);
+    sem_init(&mutex, 0, 1);
     
     for (int i=0; i<5; i++) {
         sem_init(&chopsticks[i], 0, 1); // initiallization the semophore
