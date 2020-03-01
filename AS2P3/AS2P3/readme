@@ -12,6 +12,8 @@
  	Let the id of left chopstick = the id of philosopher, then the 
  	id of right chopstick = (id_philosopher + 4) % 5.
  	
+ 	At most 4 philosophers can hold 1 each at the same time to 
+ 	prevent dead lock.
  	
  Reference:
  	Read "Dining philosophers problem" on Wikipedia
@@ -32,7 +34,7 @@
     
     
  Milestones: philosophers all get chance to eat	
- 			 No dead locks! (5 person each gets 1 chopstick)
+ 			 No dead locks! (No 5 person each gets 1 chopstick)
  			 No starvation! (priority mechanism let every one get eat)
  	
  			 
