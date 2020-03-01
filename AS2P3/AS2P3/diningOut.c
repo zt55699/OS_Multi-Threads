@@ -83,7 +83,7 @@ void waiter (int philo){
     sem_getvalue(&chopsticks[right], &sval_r);
     if(sval_l <1 ||sval_r <1 ){
         if(sval_l <1 &&sval_r <1 ){
-            //queue_push(&waitlist,philo);
+            printf("  %d号 does't has chopstics on both side\n", philo);
         }
         else if(sval_l ==1){
             printf("  %d号 pick up left\n", philo);
