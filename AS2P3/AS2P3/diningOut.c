@@ -116,6 +116,7 @@ void *philosopher (void* param) {
         //send request to waiter
         
         pthread_mutex_lock(&mutex);//加锁
+            printf("       %d号 lock\n", i);
             sem_getvalue(&chopsticks[left], &sval_l);
             sem_getvalue(&chopsticks[right], &sval_r);
             printf("       %d号 check sem_wait left=%d right=%d\n", i,sval_l, sval_r);
@@ -123,7 +124,7 @@ void *philosopher (void* param) {
         printf("哲学家%d拿起了%d号筷子,现在只有一支筷子,不能进餐\n", i, left);
         sem_wait(&chopsticks[right]);
         printf("哲学家%d拿起了%d号筷子\n", i, right);
-         
+            printf("       %d号 unlock\n", i);
         pthread_mutex_unlock(&mutex);//解锁
          
         printf("哲学家%d现在有两支筷子,开始进餐\n", i);
@@ -144,10 +145,6 @@ int main (void) {
     
     for (int i=0; i<5; i++) {
         sem_init(&chopsticks[i], 0, 1); // initiallization the semophore
-        
-        int sval=0;
-        sem_getvalue(&chopsticks[i], &sval);
-        printf("      chop %d init sem_val=%d\n", i, sval);
     }
     
     for (int i=0; i<5; i++) {
