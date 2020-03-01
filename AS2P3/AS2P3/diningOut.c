@@ -17,6 +17,7 @@
 
 int philosophers[5] = {0, 1, 2, 3, 4};//5 philosophers
 sem_t chopsticks[5];
+int chops_belong[5] = {-1};
 pthread_mutex_t mutex;
 
 typedef struct {
@@ -73,6 +74,21 @@ int queue_front(const Queue *p_queue, int *p_num) {
     }
 }
 
+void dining(int philo){
+    int left = philo;//左筷子的编号和哲学家的编号相同
+    int right = (philo + 4) % 5;//右筷子的编号为哲学家编号+4%5
+    sem_wait(&chopsticks[left]);
+    sem_wait(&chopsticks[right]);
+    
+    printf("       %d号 拿起2支筷子开始进食 unlock\n", philo);
+    pthread_mutex_unlock(&mutex);
+    
+    sleep(rand()%4+3);
+    printf("       %d号 进餐结束放下2支筷子\n", philo);
+    sem_post(&chopsticks[left]);
+    sem_post(&chopsticks[right]);
+}
+
 void waiter (int philo){
     int left = philo;//左筷子的编号和哲学家的编号相同
     int right = (philo + 4) % 5;//右筷子的编号为哲学家编号+4%5
@@ -83,33 +99,29 @@ void waiter (int philo){
     sem_getvalue(&chopsticks[right], &sval_r);
     if(sval_l <1 ||sval_r <1 ){
         if(sval_l <1 &&sval_r <1 ){
-            printf("  %d号 does't has chopstics on both side\n", philo);
+            printf("  %d号 does't has chopstics to pick up\n", philo);
         }
         else if(sval_l ==1){
+            chops_belong[sval_l] = philo;
             printf("  %d号 pick up left\n", philo);
             sem_wait(&chopsticks[left]);
             //queue_push(&waitlist,philo);
         }
         else{
+            chops_belong[sval_r] = philo;
             printf("  %d号 pick up right\n", philo);
             sem_wait(&chopsticks[right]);
             //queue_push(&waitlist,philo);
+        }
+        if(chops_belong[sval_l] == philo && chops_belong[sval_r] == philo){
+            dining(philo);
         }
         printf("       %d号 不能进食进入等待列表 unlock\n", philo);
         pthread_mutex_unlock(&mutex);
         return;
     }
     else{
-        sem_wait(&chopsticks[left]);
-        sem_wait(&chopsticks[right]);
-        
-        printf("       %d号 拿起2支筷子开始进食 unlock\n", philo);
-        pthread_mutex_unlock(&mutex);
-        
-        sleep(rand()%4+3);
-        printf("       %d号 进餐结束放下2支筷子\n", philo);
-        sem_post(&chopsticks[left]);
-        sem_post(&chopsticks[right]);
+        dining(philo);
     }
     
 }
