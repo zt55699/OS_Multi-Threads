@@ -128,7 +128,7 @@ void dining(int philo){
     pthread_mutex_unlock(&mutex);
     
     sleep(rand()%4+3);
-    printf("philosopher[%d] done dining put down the chopstics\n", philo);
+    printf("philosopher[%d] done dining and put down the chopstics\n\n", philo);
     chops_belong[left] = -1;
     chops_belong[right] = -1;
     sem_post(&chopsticks[left]);
@@ -194,7 +194,7 @@ void *philosopher (void* param) {
     int printcount =0;
     size_t loop_start = time_ms();
     while (1) {
-        if((time_ms()-loop_start)>6000){
+        if((time_ms()-loop_start)>8000){
             printf("           DEAD LOCK!! \n");
             exit(0);
         }
@@ -210,7 +210,7 @@ void *philosopher (void* param) {
         if(all_picked==0){
             if(printcount==0){
                 printf("The waiter told philo[%d] that all chopsticks are being hold, waiting someone done\n", i);
-                printf("\n");
+                queue_push(&waitlist,i);
                 printcount =1;
             }
             continue;
