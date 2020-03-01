@@ -123,11 +123,11 @@ void *philosopher (void* param) {
     
     while (1) {
         int temp, sval;
-        int all_picked = 1;
+        int all_picked = 0;
         for (temp =0; temp<4; temp++){
             sem_getvalue(&chopsticks[temp], &sval);
             if(sval>0){
-                all_picked = 0;
+                all_picked = 1;
                 break;
             }
         }
