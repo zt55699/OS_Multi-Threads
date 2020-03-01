@@ -47,7 +47,7 @@ int queue_push(Queue *p_queue, int val) {
     else {
         p_queue->arr[p_queue->tail] = val;
         p_queue->tail++;
-        return 1;//表示将数字加进去了
+        return 1;
     }
 }
 
@@ -57,8 +57,8 @@ int queue_pop(Queue *p_queue) {
         return -1;
     }
     else {
-        int pop = p_queue->arr[p_queue->head];//因为要删除，所以先给
-        p_queue->head++;//将取过的数跳过去
+        int pop = p_queue->arr[p_queue->head];
+        p_queue->head++;
         return pop;
     }
 }
@@ -69,7 +69,7 @@ int queue_front(const Queue *p_queue) {
         return -1;
     }
     else {
-        return p_queue->arr[p_queue->head];//多次调用是同一个数
+        return p_queue->arr[p_queue->head];
     }
 }
 
@@ -109,16 +109,16 @@ size_t time_ms() {
 
 void dining(int philo){
     queue_remove(&waitlist, philo);
-    int left = philo;//左筷子的编号和哲学家的编号相同
-    int right = (philo + 4) % 5;//右筷子的编号为哲学家编号+4%5
+    int left = philo;
+    int right = (philo + 4) % 5;//id of right chopstick=(id_philosopher+4)%5.
     sem_wait(&chopsticks[left]);
     sem_wait(&chopsticks[right]);
     
-    printf("       %d号 拿起2支筷子开始进食 unlock\n", philo);
+    //printf("       %d  unlock\n", philo);
     pthread_mutex_unlock(&mutex);
     
     sleep(rand()%4+3);
-    printf("       %d号 进餐结束放下2支筷子\n", philo);
+    printf("philosopher %d done dining put down the chopstics\n", philo);
     chops_belong[left] = -1;
     chops_belong[right] = -1;
     sem_post(&chopsticks[left]);
@@ -126,38 +126,41 @@ void dining(int philo){
 }
 
 void waiter (int philo){
-    int left = philo;//左筷子的编号和哲学家的编号相同
-    int right = (philo + 4) % 5;//右筷子的编号为哲学家编号+4%5
+    int left = philo;
+    int right = (philo + 4) % 5;//id of right chopstick=(id_philosopher+4)%5.
     int sval_l, sval_r;
-    pthread_mutex_lock(&mutex);//加锁
-    printf("       %d号 lock\n", philo);
+    if(philo != queue_front(&waitlist)){
+        sleep(1);
+    }
+    pthread_mutex_lock(&mutex);//lock
+    //printf("       %d lock\n", philo);
     sem_getvalue(&chopsticks[left], &sval_l);
     sem_getvalue(&chopsticks[right], &sval_r);
     if(sval_l <1 ||sval_r <1 ){
         if(sval_l <1 &&sval_r <1 ){
-            printf("  %d号 does't has chopstics to pick up\n", philo);
+            printf("philosopher %d doesn't has chopstics to pick up\n", philo);
       
         }
         else if(sval_l ==1){
             chops_belong[left] = philo;
-            printf("  %d号 pick up left\n", philo);
+            printf("The waiter gives philosopher %d left chopstic\n", philo);
             sem_wait(&chopsticks[left]);
  
         }
         else if(sval_r ==1){
             chops_belong[right] = philo;
-            printf("  %d号 pick up right\n", philo);
+            printf("The waiter gives philosopher %d right chopstic\n", philo);
             sem_wait(&chopsticks[right]);
         }
-        printf("%d号  左 belong to %d号； 右 belong to %d号\n", philo, chops_belong[left], chops_belong[right]);
+        //printf("NO%d  LEFT belong to NO%d； RIGHT belong to NO%d\n", philo, chops_belong[left], chops_belong[right]);
         if(chops_belong[left] == philo && chops_belong[right] == philo){
-            printf("  %d号 凑齐两支筷子\n", philo);
+            printf("Philosopher %d now has 2 chopstics, begin dining\n", philo);
             sem_post(&chopsticks[left]);
             sem_post(&chopsticks[right]);
             dining(philo);
             return;
         }
-        printf("       %d号 不能进食进入等待列表 unlock\n", philo);
+        printf("Philosopher %d does't have enough chopstics to eat, waitlist\n", philo);
         queue_push(&waitlist,philo);
         pthread_mutex_unlock(&mutex);
         return;
@@ -165,6 +168,7 @@ void waiter (int philo){
     else{
         chops_belong[left] = philo;
         chops_belong[right] = philo;
+        printf("The waiter gives philosopher %d two chopstics, begin dining\n", philo);
         dining(philo);
     }
     
@@ -173,9 +177,6 @@ void waiter (int philo){
 void *philosopher (void* param) {
     
     int i = *(int *)param;  //turn param to a int pointer, then get the integer it points
-   /* int left = i;//左筷子的编号和哲学家的编号相同
-    int right = (i + 4) % 5;//右筷子的编号为哲学家编号+4%5
-    */
     int printcount =0;
     size_t loop_start = time_ms();
     while (1) {
@@ -194,17 +195,16 @@ void *philosopher (void* param) {
         }
         if(all_picked==0){
             if(printcount==0){
-                printf("所有筷子都在使用 等待中\n");
+                printf("all chopsticks are being hold, waiting\n");
                 printcount =1;
             }
             continue;
         }
-        if(i == queue_front(&waitlist))
         
-        printf("哲学家%d正在思考问题\n", i);
+        printf("philosopher %d is thinking \n", i);
         sleep(rand()%3+1);
                 
-        printf("哲学家%d饿了\n", i);
+        printf("philosopher %d is hungry, send request to the waiter \n", i);
         //send request to waiter
         waiter(i);
         printcount =0;
