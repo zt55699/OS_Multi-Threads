@@ -20,6 +20,7 @@ sem_t chopsticks[5];
 int chops_belong[5] = {-1,-1,-1,-1,-1};
 int waiting[5] ={0};
 int first[5] ={0};
+int fullwar = 0;
 //sem_t mut;
 pthread_mutex_t mutex;
 
@@ -142,9 +143,13 @@ void dining(int philo){
 
 void waiter (int philo){
     if(chops_belong[0]!=chops_belong[1]&&chops_belong[0]!=chops_belong[2]&& chops_belong[0]!=chops_belong[3]&&chops_belong[0]!=chops_belong[4]&&chops_belong[1]!=chops_belong[2]&&chops_belong[1]!=chops_belong[3]&&chops_belong[1]!=chops_belong[4]&&chops_belong[2]!=chops_belong[3]&&chops_belong[2]!=chops_belong[4]&&chops_belong[3]!=chops_belong[4]){
-        printf("4 philosophers are holding 1 chopstics, 5th cannot, back wait\n");
+        if(fullwar==0){
+            fullwar = 1;
+            printf("4 philosophers are holding 1 chopstics, 5th cannot, back wait\n");
+        }
         return;
     }
+    fullwar = 0;
     int left = philo;
     int right = (philo + 4) % 5;//id of right chopstick=(id_philosopher+4)%5.
     int sval_l, sval_r;
