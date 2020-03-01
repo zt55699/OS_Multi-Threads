@@ -120,7 +120,21 @@ void *philosopher (void* param) {
    /* int left = i;//左筷子的编号和哲学家的编号相同
     int right = (i + 4) % 5;//右筷子的编号为哲学家编号+4%5
     */
+    
     while (1) {
+        int temp, sval;
+        int all_picked = 1;
+        for (temp =0; temp<4; temp++){
+            sem_getvalue(&chopsticks[temp], &sval);
+            if(sval>0){
+                all_picked = 0;
+                break;
+            }
+        }
+        if(all_picked==0){
+            printf("所有筷子都在使用 等待中\n");
+            continue;
+        }
         printf("哲学家%d正在思考问题\n", i);
         sleep(rand()%3+1);
                 
