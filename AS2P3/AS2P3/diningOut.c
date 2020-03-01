@@ -128,7 +128,7 @@ void waiter (int philo){
             sem_wait(&chopsticks[right]);
             //queue_push(&waitlist,philo);
         }
-        printf("  左 belong to %d号； 右 belong to %d号\n", chops_belong[left], chops_belong[right]);
+        printf("%d号  左 belong to %d号； 右 belong to %d号\n", philo, chops_belong[left], chops_belong[right]);
         if(chops_belong[left] == philo && chops_belong[right] == philo){
             dining(philo);
             return;
