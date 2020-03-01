@@ -126,6 +126,10 @@ void dining(int philo){
 }
 
 void waiter (int philo){
+    if(chops_belong[0]!=chops_belong[1]!=chops_belong[2]!=chops_belong[3]!=chops_belong[4]){
+        printf("4 philosophers are holding 1 chopstics, 5th cannot, back wait\n");
+        return;
+    }
     int left = philo;
     int right = (philo + 4) % 5;//id of right chopstick=(id_philosopher+4)%5.
     int sval_l, sval_r;
@@ -160,7 +164,7 @@ void waiter (int philo){
             dining(philo);
             return;
         }
-        printf("Philosopher %d does't have enough chopstics to eat, waitlist\n", philo);
+        //printf("Philosopher %d does't have enough chopstics to eat, waitlist\n", philo);
         queue_push(&waitlist,philo);
         pthread_mutex_unlock(&mutex);
         return;
@@ -195,14 +199,16 @@ void *philosopher (void* param) {
         }
         if(all_picked==0){
             if(printcount==0){
-                printf("all chopsticks are being hold, waiting\n");
+                printf("\n");
+                printf("All chopsticks are being hold, waiting someone done\n");
+                printf("\n");
                 printcount =1;
             }
             continue;
         }
         
         printf("philosopher %d is thinking \n", i);
-        sleep(rand()%3+1);
+        sleep(rand()%5+2);
                 
         printf("philosopher %d is hungry, send request to the waiter \n", i);
         //send request to waiter
