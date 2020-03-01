@@ -1,0 +1,49 @@
+/******************************************************************
+ Readme file for diningOut!!!
+ CSC360 Assignment2 Part3
+
+ Name:Tong Zhang
+ StuID: V00926513
+ Date: 02/29/2020
+ 
+ Definition:
+ 	5 philosophers they have id from 0 to 4;
+ 	each of them has a chopstick on left and right, 5 chopsticks totally
+ 	Let the id of left chopstick = the id of philosopher, then the 
+ 	id of right chopstick = (id_philosopher + 4) % 5.
+ 	
+ 	
+ Reference:
+ 	Read "Dining philosophers problem" on Wikipedia
+ 	https://en.wikipedia.org/wiki/Dining_philosophers_problem
+ 	//It defines the problem to me and inspires me to came up with
+ 	some initial ideas
+ 
+    Watched a YouTube video "Learn OS Concepts easy: Dining 
+    philosophers problem" 
+    link:https://www.youtube.com/watch?v=trdXKhWAGdg
+    //This video clearly states the problem, and inspires me the 
+    possible critical moment could occur during process
+    
+	   "Queue data structure implementation in C" 
+    link: https://blog.csdn.net/qq_28877125/article/details/82776561
+    //I used this struct to store philosophers' dining priority,
+    which is first come first eat.
+    
+    
+ Milestones: philosophers all get chance to eat	
+ 			 No dead locks! (5 person each gets 1 chopstick)
+ 			 No starvation! (priority mechanism let every one get eat)
+ 	
+ 			 
+ 			 
+ Functions added:			 
+ 
+ 		
+ 		void print_wait_arr()
+ 			/*Only used for debugging, which prints out the waiting
+ 			  condition. */
+ 			 
+ 
+ Possible Bug: N/A	    
+*******************************************************************/
