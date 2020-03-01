@@ -95,6 +95,16 @@ void queue_remove(Queue *p_queue, int num){
     }
 }
 
+int queue_finding(Queue *p_queue, int num){
+    int i;
+    for(i=0; i<p_queue->tail;i++){
+        if(p_queue->arr[i]==num){
+            return 1;
+        }
+    }
+    return 0;
+}
+
 size_t time_ms() {
   struct timeval tv;
   if(gettimeofday(&tv, NULL) == -1) {
@@ -205,8 +215,10 @@ void *philosopher (void* param) {
             }
             continue;
         }
-        
-        printf("philosopher[%d] is thinking \n", i);
+        if(queue_finding(&waitlist, i)==1)
+            printf("philosopher[%d] is waiting \n", i);
+        else
+            printf("philosopher[%d] is thinking \n", i);
         sleep(rand()%7+2);
                 
         printf("philosopher[%d] is hungry, send request to the waiter \n", i);
