@@ -137,7 +137,7 @@ void *philosopher (void* param) {
  
 int main (void) {
     srand(time(NULL));
-    //pthread_t philos_thread[5];
+    pthread_t philos_thread[5];
     
     queue_init(&waitlist);
     pthread_mutex_init(&mutex, NULL);
@@ -149,7 +149,7 @@ int main (void) {
         sem_getvalue(&chopsticks[i], &sval);
         printf("      chop %d init sem_val=%d\n", i, sval);
     }
-    /*
+    
     for (int i=0; i<5; i++) {
         pthread_create(&philos_thread[i], NULL, philosopher, &philosophers[i]);
     }
@@ -163,7 +163,7 @@ int main (void) {
     }
  
     pthread_mutex_destroy(&mutex);
- */
+ 
     return 0;
 }
 
