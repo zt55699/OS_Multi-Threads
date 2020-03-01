@@ -11,9 +11,11 @@
  	each of them has a chopstick on left and right, 5 chopsticks totally
  	Let the id of left chopstick = the id of philosopher, then the 
  	id of right chopstick = (id_philosopher + 4) % 5.
- 	
+ 
+ Main idea:
+ 	Introducing a waiter to arrange philosophers' dining requests.	
  	At most 4 philosophers can hold 1 each at the same time to 
- 	prevent dead lock.
+ 	prevent dead lock. Queue to prevent starvation.
  	
  Reference:
  	Read "Dining philosophers problem" on Wikipedia
@@ -36,15 +38,6 @@
  Milestones: philosophers all get chance to eat	
  			 No dead locks! (No 5 person each gets 1 chopstick)
  			 No starvation! (priority mechanism let every one get eat)
- 	
- 			 
- 			 
- Functions added:			 
- 
- 		
- 		void print_wait_arr()
- 			/*Only used for debugging, which prints out the waiting
- 			  condition. */
  			 
  
  Possible Bug: N/A	    

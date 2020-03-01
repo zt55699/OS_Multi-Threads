@@ -118,7 +118,7 @@ void dining(int philo){
     pthread_mutex_unlock(&mutex);
     
     sleep(rand()%4+3);
-    printf("philosopher %d done dining put down the chopstics\n", philo);
+    printf("philosopher[%d] done dining put down the chopstics\n", philo);
     chops_belong[left] = -1;
     chops_belong[right] = -1;
     sem_post(&chopsticks[left]);
@@ -147,18 +147,18 @@ void waiter (int philo){
         }
         else if(sval_l ==1){
             chops_belong[left] = philo;
-            printf("The waiter gives philosopher %d left chopstic\n", philo);
+            printf("The waiter gives philosopher[%d] left chopstic\n", philo);
             sem_wait(&chopsticks[left]);
  
         }
         else if(sval_r ==1){
             chops_belong[right] = philo;
-            printf("The waiter gives philosopher %d right chopstic\n", philo);
+            printf("The waiter gives philosopher[%d] right chopstic\n", philo);
             sem_wait(&chopsticks[right]);
         }
         //printf("NO%d  LEFT belong to NO%d； RIGHT belong to NO%d\n", philo, chops_belong[left], chops_belong[right]);
         if(chops_belong[left] == philo && chops_belong[right] == philo){
-            printf("Philosopher %d now has 2 chopstics, begin dining\n", philo);
+            printf("Philosopher[%d] now has 2 chopstics, begin dining\n", philo);
             sem_post(&chopsticks[left]);
             sem_post(&chopsticks[right]);
             dining(philo);
@@ -172,7 +172,7 @@ void waiter (int philo){
     else{
         chops_belong[left] = philo;
         chops_belong[right] = philo;
-        printf("The waiter gives philosopher %d two chopstics, begin dining\n", philo);
+        printf("The waiter gives philosopher[%d] two chopstics, begin dining\n", philo);
         dining(philo);
     }
     
@@ -199,17 +199,17 @@ void *philosopher (void* param) {
         }
         if(all_picked==0){
             if(printcount==0){
-                printf("The waiter told philo %d that all chopsticks are being hold, waiting someone done\n", i);
+                printf("The waiter told philo[%d] that all chopsticks are being hold, waiting someone done\n", i);
                 printf("\n");
                 printcount =1;
             }
             continue;
         }
         
-        printf("philosopher %d is thinking \n", i);
+        printf("philosopher[%d] is thinking \n", i);
         sleep(rand()%5+2);
                 
-        printf("philosopher %d is hungry, send request to the waiter \n", i);
+        printf("philosopher[%d] is hungry, send request to the waiter \n", i);
         //send request to waiter
         waiter(i);
         printcount =0;
