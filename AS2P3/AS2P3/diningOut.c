@@ -207,7 +207,7 @@ void *philosopher (void* param) {
         }
         
         printf("philosopher[%d] is thinking \n", i);
-        sleep(rand()%5+2);
+        sleep(rand()%7+2);
                 
         printf("philosopher[%d] is hungry, send request to the waiter \n", i);
         //send request to waiter
