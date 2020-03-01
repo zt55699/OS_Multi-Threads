@@ -122,7 +122,7 @@ void waiter (int philo){
             sem_wait(&chopsticks[left]);
             queue_push(&waitlist,philo);
         }
-        else{
+        else if(sval_r ==1){
             chops_belong[right] = philo;
             printf("  %d号 pick up right\n", philo);
             sem_wait(&chopsticks[right]);
