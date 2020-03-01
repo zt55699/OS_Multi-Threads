@@ -136,6 +136,8 @@ void waiter (int philo){
         return;
     }
     else{
+        chops_belong[left] = philo;
+        chops_belong[right] = philo;
         dining(philo);
     }
     
