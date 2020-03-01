@@ -215,13 +215,15 @@ void *philosopher (void* param) {
             }
             continue;
         }
-        if(queue_finding(&waitlist, i)==1)
+        if(queue_finding(&waitlist, i)==1){
             printf("philosopher[%d] is waiting \n", i);
-        else
+            sleep(rand()%4+2);
+        }
+        else{
             printf("philosopher[%d] is thinking \n", i);
-        sleep(rand()%7+2);
-                
-        printf("philosopher[%d] is hungry, send request to the waiter \n", i);
+            sleep(rand()%7+2);
+            printf("philosopher[%d] is hungry, send request to the waiter \n", i);
+        }
         //send request to waiter
         waiter(i);
         printcount =0;
