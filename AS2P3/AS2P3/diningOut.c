@@ -136,7 +136,12 @@ void *philosopher (void* param) {
     int right = (i + 4) % 5;//右筷子的编号为哲学家编号+4%5
     */
     int printcount =0;
+    size_t loop_start = time_ms();
     while (1) {
+        if((time_ms()-loop_start)>6000){
+            printf("           DEAD LOCK!! \n");
+            return 0;
+        }
         int temp, sval;
         int all_picked = 0;
         for (temp =0; temp<4; temp++){
