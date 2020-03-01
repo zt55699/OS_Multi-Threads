@@ -130,6 +130,7 @@ void waiter (int philo){
         }
         printf("%d号  左 belong to %d号； 右 belong to %d号\n", philo, chops_belong[left], chops_belong[right]);
         if(chops_belong[left] == philo && chops_belong[right] == philo){
+            printf("  %d号 开始吃\n", philo);
             dining(philo);
             return;
         }
