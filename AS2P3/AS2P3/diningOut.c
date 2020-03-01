@@ -199,7 +199,7 @@ void *philosopher (void* param) {
         printf("哲学家%d放下了%d号筷子\n", i, right);
          
          */
-        int printcount =0;
+        printcount =0;
         loop_start = time_ms();
     }
 }
