@@ -17,7 +17,7 @@
 
 int philosophers[5] = {0, 1, 2, 3, 4};//5 philosophers
 sem_t chopsticks[5];
-int chops_belong[5] = {-1};
+int chops_belong[5] = {-1,-1,-1,-1,-1};
 pthread_mutex_t mutex;
 
 typedef struct {
