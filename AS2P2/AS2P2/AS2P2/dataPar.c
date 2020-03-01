@@ -13,7 +13,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <string.h>
-#include <sys/malloc.h>
+//#include <sys/malloc.h>
 #include <math.h>
 
 #define SIZE 3653
