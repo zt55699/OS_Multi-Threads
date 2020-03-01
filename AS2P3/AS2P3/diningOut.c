@@ -130,7 +130,7 @@ void dining(int philo){
     sem_wait(&chopsticks[right]);
     
     //printf("       %d  unlock\n", philo);
-    
+    pthread_mutex_unlock(&mutex);
     
     sleep(rand()%4+3);
     printf("philosopher[%d] done dining and put down the chopstics\n\n", philo);
@@ -138,7 +138,6 @@ void dining(int philo){
     chops_belong[right] = -1;
     sem_post(&chopsticks[left]);
     sem_post(&chopsticks[right]);
-    pthread_mutex_unlock(&mutex);
 }
 
 void waiter (int philo){
