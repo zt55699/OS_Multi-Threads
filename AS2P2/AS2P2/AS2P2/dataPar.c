@@ -7,6 +7,7 @@
 //
 #include <stdlib.h>
 #include <stdio.h>
+#include <signal.h>
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
@@ -66,6 +67,14 @@ void building_process(){
     if(count_com==4000000) printf("Building... 70%%\n");
     if(count_com==6000000) printf("Building... 95%%\n");
 }
+
+
+void hsignal(int i)
+{
+  pthread_exit(0);
+}
+
+
 typedef unsigned long marker;
 marker one = 1;
 
@@ -206,7 +215,7 @@ void print_progress(){
 void* cal_all_sum(){
     while(1){
         if(cal_progress>count_com-1){
-            printf("1 thread Exit!\n");
+            //printf("1 thread Exit!\n");
             active_thread--;
             //pthread_exit(NULL);
             return NULL;
@@ -232,6 +241,7 @@ int main (void) {
     active_thread = num_thread;
     printf("\n***[Running in %d-threads]***\n\n" , active_thread);
     timer_start = time_ms();
+    sigset(SIGSEGV,hsignal);
     char* file = "stremflow_time_series.csv";
     //char* file = "test1_2002.csv";
     read_csv(file);
