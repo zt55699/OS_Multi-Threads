@@ -16,11 +16,14 @@
 #include <math.h>
 
 #define SIZE 3653 //actual size = SIZE-1;
-#define COMBINATION 6666726
-int R_SIZE = 3652;
-sem_t mutex;
+#define COMBINATION 6666727// 6666726
+int R_SIZE = 3652;  //seg fault: never give a reference to a stack-allocated(local) variable to another thread
+
+//sem_t mutex;
+pthread_mutex_t mutex;
 size_t timer_start;
 int cal_progress=0;
+int active_thread =2;
 
 typedef struct{
     int x;
@@ -194,19 +197,27 @@ void print_progress(){
         printf("progress:50%% \n");
     else if(cal_progress== (count_com-2))
         printf("progress:99.99%% \n");
+    else if(cal_progress== (count_com))
+           printf("progress:100%% \n");
 }
 
+
+//at most one thread is in the critical section!!!!!
 void* cal_all_sum(){
     while(1){
         if(cal_progress>count_com-1){
             printf("1 thread Exit!\n");
+            active_thread--;
+            //pthread_exit(NULL);
             return NULL;
         }
-        sem_wait(&mutex);
+        //sem_wait(&mutex);
+        pthread_mutex_lock(&mutex);
         print_progress();
         int i = cal_progress;
         cal_progress++;
-        sem_post(&mutex);
+        //sem_post(&mutex);
+        pthread_mutex_unlock(&mutex);
         cal_sum(&sums[i]);
     }
     return NULL;
@@ -215,7 +226,11 @@ void* cal_all_sum(){
 
  
 int main (void) {
-    printf("\n***[This is Multi-threads]***\n\n");
+    int num_thread;
+    printf("How many threads to run: ");
+    scanf("%d", &num_thread);
+    active_thread = num_thread;
+    printf("\n***[Running in %d-threads]***\n\n" , active_thread);
     timer_start = time_ms();
     char* file = "stremflow_time_series.csv";
     //char* file = "test1_2002.csv";
@@ -226,25 +241,30 @@ int main (void) {
     //    print_comb();
     printf("Building finish! total lines: %d\n\n", count_com);
     printf("SAR Calculation begin... \n");
-    pthread_t cal_thread[10];
-    int val[10];
-    
-    sem_init(&mutex, 0, 1);
+    pthread_t cal_thread[active_thread];
+    //int val[active_thread];
+    pthread_mutex_init(&mutex, NULL);
+    //sem_init(&mutex, 0, 1);
     /*
     for (int i=0; i<5; i++) {
         sem_init(&threads[i], 0, 1); // initiallization the semophore
     }
        */
-    for (int i=0; i<10; i++) {
-        pthread_create(&cal_thread[i], NULL, cal_all_sum, &val[i]);
+    for (int i=0; i<active_thread; i++) {
+        pthread_create(&cal_thread[i], NULL, cal_all_sum, NULL);
     }
        
-    for (int i=0; i<10; i++) {
+    for (int i=0; i<active_thread; i++) {
         pthread_join(cal_thread[i], NULL);
     }
+    while(active_thread>0){
+        printf("");
+    }
        
-
-    sem_destroy(&mutex);
+    printf("All Pthreads finish\n");
+    //sem_destroy(&mutex);
+    pthread_mutex_destroy(&mutex);
+    
     
     //cal_all_sum();
     find_min();
