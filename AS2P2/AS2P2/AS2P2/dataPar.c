@@ -257,9 +257,7 @@ int main (void) {
     for (int i=0; i<active_thread; i++) {
         pthread_join(cal_thread[i], NULL);
     }
-    while(active_thread>0){
-        printf("");
-    }
+
        
     printf("All Pthreads finish\n");
     //sem_destroy(&mutex);
