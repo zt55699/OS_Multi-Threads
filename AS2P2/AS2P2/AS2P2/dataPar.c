@@ -5,6 +5,8 @@
 //  Created by Tong Zhang on 2020-02-28.
 //  Copyright © 2020 zt. All rights reserved.
 //
+#define _XOPEN_SOURCE
+#define _XOPEN_SOURCE_EXTENDED
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
