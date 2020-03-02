@@ -18,7 +18,7 @@
 
 #define SIZE 3653
 #define COMBINATION 6666726
-int R_SIZE = 70;
+int R_SIZE = 365;
 
 typedef struct{
     int x;
@@ -203,8 +203,8 @@ void cal_all_sum(){
  
 int main (void) {
 	printf("\n***[This is Single-threads]***\n\n");
-    char* file = "stremflow_time_series.csv";
-    //char* file = "test1_2002.csv";
+    //char* file = "stremflow_time_series.csv";
+    char* file = "test1_2002.csv";
     read_csv(file);
     //print_points();
     build_pairs(R_SIZE+1,2,0,1);
