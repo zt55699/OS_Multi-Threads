@@ -44,10 +44,18 @@ void print_points(){
         printf("(%d,%d)\n",points[i].x, points[i].y);
     }
 }
-
+int count_com = 0;
+void building_process(){
+    if(count_com==100000) printf("Building... 2%%\n");
+    if(count_com==500000) printf("Building... 10%%\n");
+    if(count_com==1000000) printf("Building... 20%%\n");
+    if(count_com==2000000) printf("Building... 40%%\n");
+    if(count_com==4000000) printf("Building... 70%%\n");
+    if(count_com==6000000) printf("Building... 95%%\n");
+}
 typedef unsigned long marker;
 marker one = 1;
-int count_com = 0;
+
 void build_pairs(int pool, int need, marker chosen, int at)
 {
     if (pool < need + at) return; /* not enough bits left */
@@ -74,14 +82,8 @@ void build_pairs(int pool, int need, marker chosen, int at)
         }
         //printf("\n");
         count_com++;
-        if(count_com==100000) printf("count reach 100000\n");
-        if(count_com==500000) printf("count reach 500000\n");
-        if(count_com==1000000) printf("count reach 1000000\n");
-        if(count_com==2000000) printf("count reach 2000000\n");
-        if(count_com==3000000) printf("count reach 3000000\n");
-        if(count_com==4000000) printf("count reach 4000000\n");
-        if(count_com==5000000) printf("count reach 5000000\n");
-        if(count_com==6000000) printf("count reach 6000000\n");
+        building_process();
+     
         return;
     }
     /* if we choose the current item, "or" (|) the bit to mark it so. */
@@ -175,22 +177,22 @@ void read_csv(char* file){
 void print_progress(){
     if(cal_progress== 1)
         printf("progress:1%% \n");
-    if(cal_progress== count_com/20)
+    else if(cal_progress== count_com/20)
         printf("progress:5%% \n");
-    if(cal_progress== count_com/10)
+    else if(cal_progress== count_com/10)
         printf("progress:10%% \n");
-    if(cal_progress== count_com/5)
+    else if(cal_progress== count_com/5)
         printf("progress:20%% \n");
-    if(cal_progress== count_com/2)
+    else if(cal_progress== count_com/2)
         printf("progress:50%% \n");
-    if(cal_progress== (count_com-2))
+    else if(cal_progress== (count_com-2))
         printf("progress:99.99%% \n");
 }
 
 void* cal_all_sum(){
     while(1){
         if(cal_progress>count_com-1){
-            printf("thread Exit!\n\n");
+            printf("1 thread Exit!\n");
             return NULL;
         }
         sem_wait(&mutex);
@@ -214,8 +216,8 @@ int main (void) {
     build_pairs(R_SIZE+1,2,0,1);
     //build_pairs(3653,2,0,1);
     //    print_comb();
-    printf("total com: %d\n", count_com);
-    
+    printf("Building finish! total lines: %d\n\n", count_com);
+    printf("SAR Calculation begin... \n");
     pthread_t cal_thread[3];
     int val[3];
     

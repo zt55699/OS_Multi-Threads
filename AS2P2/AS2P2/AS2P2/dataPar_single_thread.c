@@ -18,7 +18,7 @@
 
 #define SIZE 3653
 #define COMBINATION 6666726
-int R_SIZE = 365;
+int R_SIZE = 3652;
 
 typedef struct{
     int x;
@@ -45,9 +45,19 @@ void print_points(){
     }
 }
 
+int count_com = 0;
+void building_process(){
+    if(count_com==100000) printf("Building... 2%%\n");
+    if(count_com==500000) printf("Building... 10%%\n");
+    if(count_com==1000000) printf("Building... 20%%\n");
+    if(count_com==2000000) printf("Building... 40%%\n");
+    if(count_com==4000000) printf("Building... 70%%\n");
+    if(count_com==6000000) printf("Building... 95%%\n");
+}
+
 typedef unsigned long marker;
 marker one = 1;
-int count_com = 0;
+
 void build_pairs(int pool, int need, marker chosen, int at)
 {
     if (pool < need + at) return; /* not enough bits left */
@@ -74,14 +84,8 @@ void build_pairs(int pool, int need, marker chosen, int at)
         }
         //printf("\n");
         count_com++;
-        if(count_com==100000) printf("count reach 100000\n");
-        if(count_com==500000) printf("count reach 500000\n");
-        if(count_com==1000000) printf("count reach 1000000\n");
-        if(count_com==2000000) printf("count reach 2000000\n");
-        if(count_com==3000000) printf("count reach 3000000\n");
-        if(count_com==4000000) printf("count reach 4000000\n");
-        if(count_com==5000000) printf("count reach 5000000\n");
-        if(count_com==6000000) printf("count reach 6000000\n");
+		building_process();
+		
         return;
     }
     /* if we choose the current item, "or" (|) the bit to mark it so. */
@@ -194,24 +198,43 @@ void read_csv(char* file){
     }
 }
 
+void print_progress(int);
+
 void cal_all_sum(){
     int i;
     for(i=0;i<count_com;i++){
         cal_sum(&sums[i]);
+        print_progress(i);
     }
+}
+
+void print_progress(int cal_progress){
+    if(cal_progress== 1)
+        printf("progress:1%% \n");
+    else if(cal_progress== count_com/20)
+        printf("progress:5%% \n");
+    else if(cal_progress== count_com/10)
+        printf("progress:10%% \n");
+    else if(cal_progress== count_com/5)
+        printf("progress:20%% \n");
+    else if(cal_progress== count_com/2)
+        printf("progress:50%% \n");
+    else if(cal_progress== (count_com-2))
+        printf("progress:99.99%% \n");
 }
  
 int main (void) {
 	printf("\n***[This is Single-threads]***\n\n");
-    //char* file = "stremflow_time_series.csv";
-    char* file = "test1_2002.csv";
+    char* file = "stremflow_time_series.csv";
+    //char* file = "test1_2002.csv";
     read_csv(file);
     //print_points();
     build_pairs(R_SIZE+1,2,0,1);
     //build_pairs(3653,2,0,1);
     
 //    print_comb();
-    printf("total com: %d\n", count_com);
+    printf("Building finish! total lines: %d\n\n", count_com);
+    printf("SAR Calculation begin... \n");
     cal_all_sum();
     find_min();
 
