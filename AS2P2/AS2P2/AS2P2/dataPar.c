@@ -69,10 +69,7 @@ marker one = 1;
 void build_pairs(int pool, int need, marker chosen, int at)
 {
     if (pool < need + at) return; /* not enough bits left */
- 
     if (!need) {
-        /* got all we needed; print the thing.  if other actions are
-         * desired, we could have passed in a callback function. */
         int dig=0;
         for (at = 0; at < pool; at++){
             if (chosen & (one << at)){
@@ -229,8 +226,8 @@ int main (void) {
     //    print_comb();
     printf("Building finish! total lines: %d\n\n", count_com);
     printf("SAR Calculation begin... \n");
-    pthread_t cal_thread[3];
-    int val[3];
+    pthread_t cal_thread[10];
+    int val[10];
     
     sem_init(&mutex, 0, 1);
     /*
@@ -238,11 +235,11 @@ int main (void) {
         sem_init(&threads[i], 0, 1); // initiallization the semophore
     }
        */
-    for (int i=0; i<3; i++) {
+    for (int i=0; i<10; i++) {
         pthread_create(&cal_thread[i], NULL, cal_all_sum, &val[i]);
     }
        
-    for (int i=0; i<3; i++) {
+    for (int i=0; i<10; i++) {
         pthread_join(cal_thread[i], NULL);
     }
        
