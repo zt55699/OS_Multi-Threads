@@ -18,6 +18,7 @@
 
 #define SIZE 3653
 #define COMBINATION 6666726
+size_t timer_start;
 int R_SIZE = 3652;
 
 typedef struct{
@@ -37,6 +38,17 @@ combination sums[COMBINATION];
 
 sem_t mut;
 pthread_mutex_t mutex;
+
+size_t time_ms() {
+  struct timeval tv;
+  if(gettimeofday(&tv, NULL) == -1) {
+    perror("gettimeofday");
+    exit(2);
+  }
+  
+  // Convert timeval values to milliseconds
+  return tv.tv_sec*1000 + tv.tv_usec/1000;
+}
 
 void print_points(){
     int i;
@@ -225,6 +237,7 @@ void print_progress(int cal_progress){
  
 int main (void) {
 	printf("\n***[This is Single-threads]***\n\n");
+	timer_start = time_ms();
     char* file = "stremflow_time_series.csv";
     //char* file = "test1_2002.csv";
     read_csv(file);
@@ -238,6 +251,9 @@ int main (void) {
     cal_all_sum();
     find_min();
 
+	size_t runtime = time_ms() - timer_start;
+    int second = runtime/1000;
+    printf("Runing time: %ds %lums\n",second, runtime%1000);
     return 0;
 }
 
