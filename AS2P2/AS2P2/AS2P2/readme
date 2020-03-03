@@ -1,44 +1,65 @@
 /******************************************************************
- Readme file for diningOut!!!
- CSC360 Assignment2 Part3
+ Readme file for best L1 straight line fitting!!!
+ CSC360 Assignment2 Part2
 
  Name:Tong Zhang
  StuID: V00926513
  Date: 02/29/2020
  
- Definition:
- 	5 philosophers they have id from 0 to 4;
- 	each of them has a chopstick on left and right, 5 chopsticks totally
- 	Let the id of left chopstick = the id of philosopher, then the 
- 	id of right chopstick = (id_philosopher + 4) % 5.
- 
- Main idea:
- 	Introducing a waiter to arrange philosophers' dining requests.	
- 	At most 4 philosophers can hold 1 each at the same time to 
- 	prevent dead lock. Queue to prevent starvation.
- 	
- Reference:
- 	Read "Dining philosophers problem" on Wikipedia
- 	https://en.wikipedia.org/wiki/Dining_philosophers_problem
- 	//It defines the problem to me and inspires me to came up with
- 	some initial ideas
- 
-    Watched a YouTube video "Learn OS Concepts easy: Dining 
-    philosophers problem" 
-    link:https://www.youtube.com/watch?v=trdXKhWAGdg
-    //This video clearly states the problem, and inspires me the 
-    possible critical moment could occur during process
-    
-	   "Queue data structure implementation in C" 
-    link: https://blog.csdn.net/qq_28877125/article/details/82776561
-    //I used this struct to store philosophers' dining priority,
-    which is first come first eat.
-    
-    
- Milestones: philosophers all get chance to eat	
- 			 No dead locks! (No 5 person each gets 1 chopstick)
- 			 No starvation! (priority mechanism let every one get eat)
+ Tests:
+ 	test1.c: calculate the best line and its intercept and slope 
+ 			 from 6, 10, 14, 18 data points.
  			 
+    test2.c: calculate the best line to the 365-point daily segment 
+    		 for 2002.
  
- Possible Bug: N/A	    
+ Description:  
+    dataPar.c: calculate the complete 3652 daily measurements 10 years
+    		 user input to decide use how many threads!
+    		 First read all the points into a array of point struct.
+    		 
+    build_pairs():
+    		 Then call build_pairs() to calculate all the possibile 
+    		 lines and store the 2 points pair into a array of pair
+    		 struct. 
+    		 
+    cal_all_sum():  //data parallelism, distribute data to threads.
+    		 After create threads and let them to calculate all the 
+    		 SAR of each pair(line). The data is splitting by its index
+    		 number of the pair array. Once a thread lock the mutex,
+    		 it grabs the index of current processing progress of the 
+    		 pair array, then increase the progress number by 1, then
+    		 unlock to do its calculation for the SAR of that line.
+    		 By this mutex mechanism, other thread will never get a 
+    		 same line to calculate, each time they all get a different
+    		 line to work with. 
+    		 After the progress number reach the number of lines, all
+    		 the SAR calculation were done, the threads exit.
+    		 
+    cal_sum():
+    		 calculate the x1, x2 and SAR for a pair of points (line).
+    
+    find_min()		 
+    		 go through the array of pairs(lines), find the line with
+    		 smallest SAR; 
+    		 Print out the line as the best line, and print out its 
+    		 slope and intercept.
+ 
+ Things to notice:
+ 	My best line slope of 2002 and 10 years are both slightly different
+ 	from Yvonne's example solution in assignment description.
+ 	
+ 	I checked every details of SAR calculation of small data sets, I 
+ 	even calculated by myself, and got the same best line and slope.
+ 	
+ 	The algorithm of calculating is best line is quite simple and 
+ 	straightforward, nothing could go wrong there.
+ 	
+ 	My best line results keeps uniform between both single thread and 
+ 	multithreads, which seem everything works great in parallel threads.
+ 	
+ 	I was confused by this off results for a entirely week, couldn't find
+ 	any clues.
+ 
+ Performance evaluation: see attached PDF file    
 *******************************************************************/
