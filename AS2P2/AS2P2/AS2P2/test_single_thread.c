@@ -5,28 +5,21 @@
 //  Created by Tong Zhang on 2020-02-28.
 //  Copyright © 2020 zt. All rights reserved.
 //
-#define _XOPEN_SOURCE
-#define _XOPEN_SOURCE_EXTENDED
 #include <stdlib.h>
 #include <stdio.h>
-#include <signal.h>
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <string.h>
+//#include <sys/malloc.h>
 #include <math.h>
 
-#define SIZE 3653 //actual size = SIZE-1;
-#define COMBINATION 6666727// 6666726
-int R_SIZE = 3652;  //seg fault: never give a reference to a stack-allocated(local) variable to another thread
-
-//sem_t mutex;
-pthread_mutex_t mutex;
+#define SIZE 3653
+#define COMBINATION 6666726
 size_t timer_start;
-int cal_progress=0;
-int active_thread =2;
+int R_SIZE = 3652;
 
 typedef struct{
     int x;
@@ -37,11 +30,14 @@ point points[SIZE];
 typedef struct{
     int p1;
     int p2;
-    double SAR;
+    double sum;
     double x1;
     double x2;
-}pair;
-pair sums[COMBINATION];
+}combination;
+combination sums[COMBINATION];
+
+sem_t mut;
+pthread_mutex_t mutex;
 
 size_t time_ms() {
   struct timeval tv;
@@ -60,6 +56,7 @@ void print_points(){
         printf("(%d,%d)\n",points[i].x, points[i].y);
     }
 }
+
 int count_com = 0;
 void building_process(){
     if(count_com==100000) printf("Building... 2%%\n");
@@ -70,20 +67,16 @@ void building_process(){
     if(count_com==6000000) printf("Building... 95%%\n");
 }
 
-
-void hsignal(int i)
-{
-  pthread_exit(0);
-}
-
-
 typedef unsigned long marker;
 marker one = 1;
 
 void build_pairs(int pool, int need, marker chosen, int at)
 {
     if (pool < need + at) return; /* not enough bits left */
+ 
     if (!need) {
+        /* got all we needed; print the thing.  if other actions are
+         * desired, we could have passed in a callback function. */
         int dig=0;
         for (at = 0; at < pool; at++){
             if (chosen & (one << at)){
@@ -103,8 +96,8 @@ void build_pairs(int pool, int need, marker chosen, int at)
         }
         //printf("\n");
         count_com++;
-        building_process();
-     
+		building_process();
+		
         return;
     }
     /* if we choose the current item, "or" (|) the bit to mark it so. */
@@ -112,36 +105,38 @@ void build_pairs(int pool, int need, marker chosen, int at)
     build_pairs(pool, need, chosen, at + 1);  /* or don't choose it, go to next */
 }
 
+/*
+void cal_sum(point p1, point p2){
+    float x1, x2;
+    x2 = 1.0*(p2.y-p1.y)/(p2.x-p1.x);
+    x1 = 1.0*p1.y - 1.0*x2*p1.x;
+    
+}*/
+
+
 //calculate the sum of absolute residuals of the line of a pair of points
 //SAR(a1,a2) = Σwi│di – (a1 + a2ti)│, for all i = 1,2,…,m,
-void cal_sum(pair *pair){
-    double denomi_slope =points[pair->p2].y-points[pair->p1].y;
-    double nomi_slope =points[pair->p2].x-points[pair->p1].x;
-    pair->x2 = denomi_slope/nomi_slope;
-    if(denomi_slope!=0 && pair->x2 == 0){
-        printf("cal x2 error! \n");
-        exit(1);
-    }
-    pair->x1 = (points[pair->p1].y) - pair->x2*(1.0*(points[pair->p1].x));
+void cal_sum(combination *pair){
+    pair->x2 = (1.0*(points[pair->p2].y)-1.0*(points[pair->p1].y))/1.0*(points[pair->p2].x-1.0*points[pair->p1].x);
+    pair->x1 = 1.0*(points[pair->p1].y) - 1.0*pair->x2*(points[pair->p1].x);
     double sum = 0.0;
     int i;
     int count_resi = 0;
 //    printf("Line %d-%d\n", pair->p1, pair->p2);
     for(i=1;i<R_SIZE+1;i++){
         //if(i!=(pair->p1) && i!=(pair->p2)){
-        double line_y =pair->x1+pair->x2*(i);
-            double absResidual =fabs(1.0*points[i].y-line_y);
+            double absResidual =fabs(1.0*points[i].y-(pair->x1+pair->x2*(1.0*i)));
 //            printf(" p%d 's residual is %f\n", i, absResidual);
             count_resi++;
             sum+= absResidual;
         //}
     }
 //    printf("numof resi= %d\n", count_resi);
-    pair->SAR = sum;
-//    printf("pair%d-%d sum:%f\n", pair->p1, pair->p2, pair->SAR);
+    pair->sum = sum;
+//    printf("pair%d-%d sum:%f\n", pair->p1, pair->p2, pair->sum);
 }
 
-void cal_slopint(pair pair){
+void cal_slopint(combination pair){
     printf("with slop: %f   y_intercept: %f\n", pair.x2, pair.x1);
 }
 
@@ -150,8 +145,8 @@ void find_min(){
     int min_pair = -1;
     int i;
     for(i=0; i<count_com; i++){
-        if(sums[i].SAR<minSAR){
-            minSAR = sums[i].SAR;
+        if(sums[i].sum<minSAR){
+            minSAR = sums[i].sum;
             min_pair = i;
         }
     }
@@ -172,26 +167,28 @@ void print_comb(){
 }
 
 
-
 void read_csv(char* file){
     
     FILE *fp = NULL;
     char *line,*record;
     char buffer[40];
     printf("%d data read from %s\n",R_SIZE,file);
-    if((fp = fopen(file, "r")) != NULL){
-        fseek(fp, 0, SEEK_SET);
+    if((fp = fopen(file, "r")) != NULL)
+    {
+        fseek(fp, 0, SEEK_SET);  //定位到第二行，每个英文字符大小为1，16425L这个参数根据自己文件的列数进行相应修改。
         int xcordi=1;
         line = fgets(buffer, sizeof(buffer), fp);
-        while ((line = fgets(buffer, sizeof(buffer), fp))!=NULL){
+        while ((line = fgets(buffer, sizeof(buffer), fp))!=NULL)
+        {
             int colum =1;
             record = strtok(line, ",");
-            while (record != NULL){
+            while (record != NULL)//读取每一行的数据
+            {
                 if(colum==2)
-                    points[xcordi].y = atoi(record);
+                    points[xcordi].y = atoi(record)*1.0;
                 else
-                    points[xcordi].x = xcordi;
- 
+                    points[xcordi].x = xcordi*1.0;
+                //printf("%s ", record);//将读取到的每一个数据打印出来
                 record = strtok(NULL, ",");
                 colum++;
             }
@@ -200,13 +197,19 @@ void read_csv(char* file){
         fclose(fp);
         fp = NULL;
     }
-    else{
-        printf ("cannot open!\n");
-        exit(1);
+}
+
+void print_progress(int);
+
+void cal_all_sum(){
+    int i;
+    for(i=0;i<count_com;i++){
+        cal_sum(&sums[i]);
+        print_progress(i);
     }
 }
 
-void print_progress(){
+void print_progress(int cal_progress){
     if(cal_progress== 1)
         printf("progress:1%% \n");
     else if(cal_progress== count_com/20)
@@ -219,78 +222,25 @@ void print_progress(){
         printf("progress:50%% \n");
     else if(cal_progress== (count_com-2))
         printf("progress:99.99%% \n");
-    else if(cal_progress== (count_com))
-           printf("progress:100%% \n");
 }
-
-
-//at most one thread is in the critical section!!!!!
-void* cal_all_sum(){
-    while(1){
-        if(cal_progress>count_com-1){
-            //printf("1 thread Exit!\n");
-            active_thread--;
-            //pthread_exit(NULL);
-            return NULL;
-        }
-        //sem_wait(&mutex);
-        pthread_mutex_lock(&mutex);
-        print_progress();
-        int i = cal_progress;
-        cal_progress++;
-        //sem_post(&mutex);
-        pthread_mutex_unlock(&mutex);
-        cal_sum(&sums[i]);
-    }
-    return NULL;
-}
-
-
  
 int main (void) {
-    int num_thread;
-    printf("How many threads to run: ");
-    scanf("%d", &num_thread);
-    active_thread = num_thread;
-    printf("\n***[Running in %d-threads]***\n\n" , active_thread);
-    timer_start = time_ms();
-    sigset(SIGSEGV,hsignal);
+	printf("\n***[This is Single-threads]***\n\n");
+	timer_start = time_ms();
     char* file = "stremflow_time_series.csv";
-    //char* file = "2002data.csv";
+    //char* file = "test1_2002.csv";
     read_csv(file);
     //print_points();
     build_pairs(R_SIZE+1,2,0,1);
     //build_pairs(3653,2,0,1);
-    //    print_comb();
+    
+//    print_comb();
     printf("Building finish! total lines: %d\n\n", count_com);
     printf("SAR Calculation begin... \n");
-    pthread_t cal_thread[active_thread];
-    //int val[active_thread];
-    pthread_mutex_init(&mutex, NULL);
-    //sem_init(&mutex, 0, 1);
-    /*
-    for (int i=0; i<5; i++) {
-        sem_init(&threads[i], 0, 1); // initiallization the semophore
-    }
-       */
-    for (int i=0; i<active_thread; i++) {
-        pthread_create(&cal_thread[i], NULL, cal_all_sum, NULL);
-    }
-       
-    for (int i=0; i<active_thread; i++) {
-        pthread_join(cal_thread[i], NULL);
-    }
-
-       
-    printf("All Pthreads finish\n");
-    //sem_destroy(&mutex);
-    pthread_mutex_destroy(&mutex);
-    
-    
-    //cal_all_sum();
+    cal_all_sum();
     find_min();
-    
-    size_t runtime = time_ms() - timer_start;
+
+	size_t runtime = time_ms() - timer_start;
     int second = runtime/1000;
     printf("Runing time: %ds %lums\n",second, runtime%1000);
     return 0;

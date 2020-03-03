@@ -18,8 +18,7 @@
 
 #define SIZE 3653
 #define COMBINATION 6666726
-size_t timer_start;
-int R_SIZE = 3652;
+int R_SIZE =365;
 
 typedef struct{
     int x;
@@ -31,24 +30,13 @@ typedef struct{
     int p1;
     int p2;
     double sum;
-    double x1;
-    double x2;
+    //double x1;
+    //double x2;
 }combination;
 combination sums[COMBINATION];
 
 sem_t mut;
 pthread_mutex_t mutex;
-
-size_t time_ms() {
-  struct timeval tv;
-  if(gettimeofday(&tv, NULL) == -1) {
-    perror("gettimeofday");
-    exit(2);
-  }
-  
-  // Convert timeval values to milliseconds
-  return tv.tv_sec*1000 + tv.tv_usec/1000;
-}
 
 void print_points(){
     int i;
@@ -57,19 +45,9 @@ void print_points(){
     }
 }
 
-int count_com = 0;
-void building_process(){
-    if(count_com==100000) printf("Building... 2%%\n");
-    if(count_com==500000) printf("Building... 10%%\n");
-    if(count_com==1000000) printf("Building... 20%%\n");
-    if(count_com==2000000) printf("Building... 40%%\n");
-    if(count_com==4000000) printf("Building... 70%%\n");
-    if(count_com==6000000) printf("Building... 95%%\n");
-}
-
 typedef unsigned long marker;
 marker one = 1;
-
+int count_com = 0;
 void build_pairs(int pool, int need, marker chosen, int at)
 {
     if (pool < need + at) return; /* not enough bits left */
@@ -96,8 +74,14 @@ void build_pairs(int pool, int need, marker chosen, int at)
         }
         //printf("\n");
         count_com++;
-		building_process();
-		
+        if(count_com==100000) printf("count reach 100000\n");
+        if(count_com==500000) printf("count reach 500000\n");
+        if(count_com==1000000) printf("count reach 1000000\n");
+        if(count_com==2000000) printf("count reach 2000000\n");
+        if(count_com==3000000) printf("count reach 3000000\n");
+        if(count_com==4000000) printf("count reach 4000000\n");
+        if(count_com==5000000) printf("count reach 5000000\n");
+        if(count_com==6000000) printf("count reach 6000000\n");
         return;
     }
     /* if we choose the current item, "or" (|) the bit to mark it so. */
@@ -105,39 +89,47 @@ void build_pairs(int pool, int need, marker chosen, int at)
     build_pairs(pool, need, chosen, at + 1);  /* or don't choose it, go to next */
 }
 
-/*
-void cal_sum(point p1, point p2){
-    float x1, x2;
-    x2 = 1.0*(p2.y-p1.y)/(p2.x-p1.x);
-    x1 = 1.0*p1.y - 1.0*x2*p1.x;
-    
-}*/
 
 
 //calculate the sum of absolute residuals of the line of a pair of points
 //SAR(a1,a2) = Σwi│di – (a1 + a2ti)│, for all i = 1,2,…,m,
 void cal_sum(combination *pair){
-    pair->x2 = (1.0*(points[pair->p2].y)-1.0*(points[pair->p1].y))/1.0*(points[pair->p2].x-1.0*points[pair->p1].x);
-    pair->x1 = 1.0*(points[pair->p1].y) - 1.0*pair->x2*(points[pair->p1].x);
+    double x1, x2;
+ //   printf("pair: %d-%d:\n",pair->p1, pair->p2);
+    double denomi_slope =points[pair->p2].y-points[pair->p1].y;
+    double nomi_slope =points[pair->p2].x-points[pair->p1].x;
+    x2 = denomi_slope/nomi_slope;
+    x1 = (points[pair->p1].y) - x2*(points[pair->p1].x);
+//    printf("        x2 = %f/%f = %f\n", denomi_slope,nomi_slope,x2   );
+ //   printf("        x1 = (%d) - %f*(%d) = %f\n",points[pair->p1].y,x2,points[pair->p1].x, x1);
     double sum = 0.0;
     int i;
     int count_resi = 0;
 //    printf("Line %d-%d\n", pair->p1, pair->p2);
     for(i=1;i<R_SIZE+1;i++){
         //if(i!=(pair->p1) && i!=(pair->p2)){
-            double absResidual =fabs(1.0*points[i].y-(pair->x1+pair->x2*(1.0*i)));
-//            printf(" p%d 's residual is %f\n", i, absResidual);
+  //      printf("    p%d 's y = %d\n", i,points[i].y);
+        //printf("    line_y =%f+%f*%d \n", x1,x2,i);
+        double line_y =x1+x2*(i);
+ //       printf("    line's y at %d = %f\n", i,line_y);
+            double absResidual =fabs(points[i].y-line_y);
+ //           printf("        p%d 's residual is %f\n", i, absResidual);
             count_resi++;
             sum+= absResidual;
         //}
     }
 //    printf("numof resi= %d\n", count_resi);
     pair->sum = sum;
-//    printf("pair%d-%d sum:%f\n", pair->p1, pair->p2, pair->sum);
+ //   printf("pair%d-%d SAR:%f\n", pair->p1, pair->p2, pair->sum);
 }
 
 void cal_slopint(combination pair){
-    printf("with slop: %f   y_intercept: %f\n", pair.x2, pair.x1);
+    double x1, x2;
+    double denomi_slope =points[pair.p2].y-points[pair.p1].y;
+    double nomi_slope =points[pair.p2].x-points[pair.p1].x;
+    x2 = denomi_slope/nomi_slope;
+    x1 = (points[pair.p1].y) - x2*(points[pair.p1].x);
+    printf("with slop: %f   y_intercept: %f\n", x2, x1);
 }
 
 void find_min(){
@@ -167,6 +159,13 @@ void print_comb(){
 }
 
 
+void* fitting(){
+    while(1){
+        
+    }
+}
+
+
 void read_csv(char* file){
     
     FILE *fp = NULL;
@@ -175,20 +174,20 @@ void read_csv(char* file){
     
     if((fp = fopen(file, "r")) != NULL)
     {
-        fseek(fp, 0, SEEK_SET);  //定位到第二行，每个英文字符大小为1，16425L这个参数根据自己文件的列数进行相应修改。
+        fseek(fp, 0, SEEK_SET);
         int xcordi=1;
         line = fgets(buffer, sizeof(buffer), fp);
         while ((line = fgets(buffer, sizeof(buffer), fp))!=NULL)
         {
             int colum =1;
             record = strtok(line, ",");
-            while (record != NULL)//读取每一行的数据
+            while (record != NULL)
             {
                 if(colum==2)
                     points[xcordi].y = atoi(record)*1.0;
                 else
                     points[xcordi].x = xcordi*1.0;
-                //printf("%s ", record);//将读取到的每一个数据打印出来
+        
                 record = strtok(NULL, ",");
                 colum++;
             }
@@ -199,50 +198,29 @@ void read_csv(char* file){
     }
 }
 
-void print_progress(int);
-
 void cal_all_sum(){
     int i;
     for(i=0;i<count_com;i++){
         cal_sum(&sums[i]);
-        print_progress(i);
     }
-}
-
-void print_progress(int cal_progress){
-    if(cal_progress== 1)
-        printf("progress:1%% \n");
-    else if(cal_progress== count_com/20)
-        printf("progress:5%% \n");
-    else if(cal_progress== count_com/10)
-        printf("progress:10%% \n");
-    else if(cal_progress== count_com/5)
-        printf("progress:20%% \n");
-    else if(cal_progress== count_com/2)
-        printf("progress:50%% \n");
-    else if(cal_progress== (count_com-2))
-        printf("progress:99.99%% \n");
 }
  
 int main (void) {
-	printf("\n***[This is Single-threads]***\n\n");
-	timer_start = time_ms();
-    char* file = "stremflow_time_series.csv";
-    //char* file = "test1_2002.csv";
+    //char* file = "stremflow_time_series.csv";
+    char* file = "2002data.csv";
     read_csv(file);
-    //print_points();
-    build_pairs(R_SIZE+1,2,0,1);
-    //build_pairs(3653,2,0,1);
+        //print_comb();
     
-//    print_comb();
-    printf("Building finish! total lines: %d\n\n", count_com);
-    printf("SAR Calculation begin... \n");
-    cal_all_sum();
-    find_min();
+    	printf("%d data read from %s\n",R_SIZE,file);
+    	build_pairs(R_SIZE+1,2,0,1);
+    	printf("total com: %d\n", count_com);
+    	cal_all_sum();
+    	find_min();
 
-	size_t runtime = time_ms() - timer_start;
-    int second = runtime/1000;
-    printf("Runing time: %ds %lums\n",second, runtime%1000);
+     
+     
+    
+
     return 0;
 }
 
