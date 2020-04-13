@@ -1,0 +1,9 @@
+Assignment 2, Part 3: Dining Philosophers!
+
+By now in the is course, you can probably all relate to this story...  https://en.wikipedia.org/wiki/Dining_philosophers_problem
+Yes, originally it was an exam question about computers and tape drives!  The challenge is to share resources when you have concurrency---given that you can have race conditions, you need some concurrency control mechanisms.  We really wanted you to think about this problem, as it will help you understand things like deadlock and starvation!
+For this final part of assignment 2, you will implement your own solution to the dining philosophers (you will find many out there, please just reference your sources!) using pthreads and semaphores.  A really careful overview of various solutions is given here: https://en.wikipedia.org/wiki/Dining_philosophers_problem 
+What to handin for Feb 28th 10pm:
+- a README that notes any specific features you want to share (such as where you got the inspiration for your solution!)
+- your Makefile that will produce an executable called "diningOut" that will run on the linux server
+- your code
